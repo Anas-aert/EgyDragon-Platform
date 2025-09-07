@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import postSchema from "./schema";
 
 // ✅ GET Posts
-export async function GET() {
+export async function GET(request: NextRequest) {
   const posts = await prisma.post.findMany();
 
   if (!posts || posts.length === 0) {
@@ -43,4 +43,40 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(request: NextRequest) {
+  const posts = await prisma.post.findMany();
+  const body = await request.json();
+
+  if (!posts || posts.length === 0) {
+    return NextResponse.json(
+      { "No Posts!": "there's no posts to delete" },
+      { status: 404 }
+    );
+  }
+  
+  const isExistingPost = await prisma.post.findUnique({
+    where: {
+      id: body.id,
+    },
+  })
+  if (!isExistingPost) {
+    return NextResponse.json({"Not found post!":"There is no post with this ID"}, {status:400})
+  }
+  console.log(body.id)
+
+  if (!body.id) {
+    return NextResponse.json({ "Unvalid Data!": "Your data is not valid" },
+      { status: 400 })
+  }
+
+
+
+  const deleted_post = prisma.post.delete({
+    where: {
+      id: body.id,
+    },
+  })
+  return NextResponse.json({"deleted":deleted_post}, {status:200})
 }

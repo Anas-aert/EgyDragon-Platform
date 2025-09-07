@@ -1,21 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import { Menu, X } from "lucide-react";
 
-type NavbarProps = {
-  user?: {
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
-  status: "loading" | "authenticated" | "unauthenticated";
-};
+interface User {
+  email?: string;
+  image?: string;
+  name?: string;
+}
 
-export default function Navbar({ user, status }: NavbarProps) {
+interface NavbarProps {
+  status: "authenticated" | "unauthenticated" | "loading";
+  user?: User | null;
+  signOut: () => void;
+}
+
+export default function Navbar({ status, user, signOut }: NavbarProps) {
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -25,68 +29,110 @@ export default function Navbar({ user, status }: NavbarProps) {
           EgyDrag
         </Link>
 
-        {/* Links */}
-        <div className="flex space-x-6">
-          <Link href="/" className="hover:text-blue-600 transition-all duration-700 text-black">
+        {/* Links (hidden on small screens) */}
+        <div className="hidden md:flex space-x-6">
+          <Link
+            href="/"
+            className="select-none hover:scale-110 hover:text-blue-600 transition-all duration-500 text-black"
+          >
             Home
           </Link>
-          <Link href="/about" className="hover:text-blue-600 transition-all duration-700 text-black">
+          <Link
+            href="/about"
+            className="select-none hover:scale-110 hover:text-blue-600 transition-all duration-500 text-black"
+          >
             About
           </Link>
-          <Link href="/contact" className="hover:text-blue-600 transition-all duration-700 text-black">
+          <Link
+            href="/contact"
+            className="select-none hover:scale-110 hover:text-blue-600 transition-all duration-500 text-black"
+          >
             Contact
           </Link>
         </div>
 
-        {/* User section */}
-        {status === "authenticated" && user ? (
-          <div className="relative">
-            <button
-              className="flex items-center space-x-2 cursor-pointer"
-              onClick={() => setOpen(!open)}
-            >
-              <Image
-                src={user.image as string}
-                width={40}
-                height={40}
-                alt="Profile"
-                className="rounded-full"
-              />
-              <span className="font-medium text-black">{user.name}</span>
-            </button>
+        {/* User Section / Sign In */}
+        <div className="md:block">
+          {status === "authenticated" && user ? (
+            <div className="relative">
+              <button
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => setOpen(!open)}
+              >
+                <Image
+                  src={user.image}
+                  width={40}
+                  height={40}
+                  alt="Profile"
+                  className="rounded-full"
+                />
+                <span className="font-medium hidden lg:block text-black">
+                  {user.name}
+                </span>
+              </button>
 
-            {open && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
-                >
-                  Profile
-                </Link>
-                <Link
-                  href="/settings"
-                  className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
-                >
-                  Settings
-                </Link>
-                <button
-                  onClick={() => signOut()}
-                  className="w-full text-left px-4 py-2 text-black hover:bg-red-600 cursor-pointer hover:text-white"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <Link
-            href="/auth/MainAuth"
-            className="bg-blue-600 transition-all duration-1000 hover:scale-110 text-black px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Sign In
-          </Link>
-        )}
+              {open && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                    }}
+                    className="w-full text-left px-4 py-2 text-black hover:bg-red-600 cursor-pointer hover:text-white"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="hover:scale-110 bg-blue-600 transition-all duration-700 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            <Link
+              href="/auth/MainAuth"
+            >
+              Sign In
+            </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Hamburger (only on small screens) */}
+        <button
+          className="md:hidden p-2 cursor-pointer text-black"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
+          <Link href="/" className="block text-black select-none hover:text-blue-600">
+            Home
+          </Link>
+          <Link href="/about" className="block select-none text-black hover:text-blue-600">
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className="block select-none text-black hover:text-blue-600"
+          >
+            Contact
+          </Link>
+        </div>
+      )}
     </nav>
   );
 }

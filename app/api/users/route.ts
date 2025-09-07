@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import userSchema from "./schema";
 import { prisma } from "@/prisma/client";
@@ -24,7 +23,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate
     const userValidation = userSchema.safeParse(body);
 
     if (!userValidation.success) {
@@ -34,15 +32,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save in DB
     const newUser = await prisma.user.create({
-      data: userValidation.data,
-    });
+    data: userValidation.data,
+  });
+
 
     return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { message: "Something went wrong", error },
+      { message: "Something went wrong" + error},
       { status: 500 }
     );
   }
