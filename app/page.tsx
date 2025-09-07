@@ -4,13 +4,15 @@ export default async function Home() {
   const res = await fetch("http://localhost:3000/api/posts", {
     cache: "no-store",
   });
+
   const posts = await res.json();
+  let postsJSX;
 
   if (!Array.isArray(posts)) {
-    console.error("Posts is not an array:", posts);
     return (
       <div className="text-center">
-        No posts found
+        <AllComponents />
+        <div className="absolute top-6/12 left-6/12 -translate-x-6/12 -translate-z-6/12 text-2xl">No posts found</div>
       </div>
     );
   } else {

@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         
         {<NextAuthProvider>{children}</NextAuthProvider>}
-        <footer className="bg-blue-950 p-3.5 text-center">
+        <footer className="bg-blue-950 p-3.5 text-center absolute bottom-0 w-screen">
           <h2 className="text-2xl mb-1.5 select-none text-white">© 2025 Anas. All rights reserved.</h2>
           <p className="text-lg select-none text-white">This website created by Anas Muhammed: Python & Full-Stack Programmer</p>
         </footer>
