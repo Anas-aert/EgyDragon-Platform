@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 
 interface User {
   email?: string;
@@ -17,7 +18,9 @@ interface NavbarProps {
   signOut: () => void;
 }
 
-export default function Navbar({ status, user, signOut }: NavbarProps) {
+
+function Navvbar({ status, user, signOut }: NavbarProps) {
+  
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -135,4 +138,12 @@ export default function Navbar({ status, user, signOut }: NavbarProps) {
       )}
     </nav>
   );
+}
+
+export default function NavBar() {
+  const { data, status } = useSession();
+  
+  return (
+    <Navvbar user={data?.user} status={status} signOut={signOut}/>
+  )
 }

@@ -26,7 +26,7 @@ const Profile = async () => {
   // ));
 
   return (
-    <div className="h-screen">
+    <div className="h-full">
       <div className="flex flex-col items-center justify-center p-8">
         {!data && (
           <p className="text-black">Please login to access your profile.</p>
@@ -49,11 +49,11 @@ const Profile = async () => {
           </div>
         )}
       </div>
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="space-y-6">{postsJSX}</div>
         </div>
-      </main>
+      </main> */}
     </div>
   );
 };

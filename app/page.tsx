@@ -1,18 +1,16 @@
-import { AllComponents } from "./_components/Full-Detail";
-
 export default async function Home() {
   const res = await fetch("http://localhost:3000/api/posts", {
     cache: "no-store",
   });
 
   const posts = await res.json();
-  let postsJSX;
 
   if (!Array.isArray(posts)) {
     return (
       <div className="text-center">
-        <AllComponents />
-        <div className="absolute top-6/12 left-6/12 -translate-x-6/12 -translate-z-6/12 text-2xl">No posts found</div>
+        <div className="absolute top-6/12 left-6/12 -translate-x-6/12 -translate-z-6/12 text-2xl">
+          No posts found
+        </div>
       </div>
     );
   } else {
@@ -31,15 +29,13 @@ export default async function Home() {
         </div>
       );
     });
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="space-y-6 flex flex-col-reverse">{postsJSX}</div>
+        </div>
+      </main>
+    );
   }
-
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <AllComponents />
-
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="space-y-6">{postsJSX}</div>
-      </div>
-    </main>
-  );
 }

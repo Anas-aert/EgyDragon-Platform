@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
+import NavBar from "./_components/Navbar";
+import { prisma } from "@/prisma/client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,21 +20,32 @@ export const metadata: Metadata = {
   description: "created by Anas Muhammed: Python & Full-Stack Programmer",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const posts = await prisma.post.findMany();
+  const hasPosts = posts.length > 0;
+
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        
-        {<NextAuthProvider>{children}</NextAuthProvider>}
-        <footer className="bg-blue-950 p-3.5 text-center absolute bottom-0 w-screen">
-          <h2 className="text-2xl mb-1.5 select-none text-white">© 2025 Anas. All rights reserved.</h2>
-          <p className="text-lg select-none text-white">This website created by Anas Muhammed: Python & Full-Stack Programmer</p>
+        <NextAuthProvider>
+          <NavBar />
+          {/* المحتوى اللي هيتوسع */}
+          <main className="flex-grow">{children}</main>
+        </NextAuthProvider>
+
+        {/* الفوتر دايمًا أسفل الشاشة */}
+        <footer className="bg-blue-950 p-3.5 text-center">
+          <h2 className="text-2xl mb-1.5 select-none text-white">
+            © 2025 Anas. All rights reserved.
+          </h2>
+          <p className="text-lg select-none text-white">
+            This website created by Anas Muhammed: Python & Full-Stack
+            Programmer
+          </p>
         </footer>
       </body>
     </html>
