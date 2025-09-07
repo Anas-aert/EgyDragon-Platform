@@ -73,7 +73,7 @@ export async function DELETE(request: NextRequest) {
 
 
 
-  const deleted_post = prisma.post.delete({
+  const deleted_post = await prisma.post.delete({
     where: {
       id: body.id,
     },
