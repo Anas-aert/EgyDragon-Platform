@@ -1,9 +1,7 @@
 export default async function Home() {
-  const res = await fetch("http://localhost:3000/api/posts", {
+  const res = await fetch("/api/posts", {
     cache: "no-store",
-  }) || await fetch("egy-dragon-platform-git-main-anas-aerts-projects.vercel.app/api/posts", {
-    cache: "no-store",
-  });;
+  })
 
   const posts = await res.json();
 

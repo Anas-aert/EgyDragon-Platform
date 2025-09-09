@@ -7,17 +7,12 @@ async function GetPosts() {
   // احصل على الـ cookies من الـ request
   const cookieStore = cookies();
   
-  const res = await fetch("http://localhost:3000/api/userPosts", {
+  const res = await fetch("/api/userPosts", {
     cache: "no-store",
     headers: {
       'Cookie': cookieStore.toString(),
     }
-  }) || await fetch("egy-dragon-platform-git-main-anas-aerts-projects.vercel.app/api/userPosts", {
-    cache: "no-store",
-    headers: {
-      'Cookie': cookieStore.toString(),
-    }
-  });
+  })
     
   const posts = await res.json();
   
