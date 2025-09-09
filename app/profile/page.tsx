@@ -93,7 +93,7 @@ const Profile = async () => {
 
           {/* Add new Post */}
           <div className="flex flex-row justify-center items-center">
-            <span className="bg-gradient-to-r duration-700 transition-all  cursor-pointer from-red-600 via-purple-600 to-blue-700 hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl  cursor-pointer select-none  p-5 text-xl ">Add Post</span>
+            <span className="bg-gradient-to-r duration-700 transition-all from-red-600 via-purple-600 to-blue-700 hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl cursor-pointer select-none  p-5 text-xl ">Add Post</span>
           </div>
 
           {/* قسم المنشورات - بس لو في session */}
