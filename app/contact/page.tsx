@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Mail, MessageSquare, User, Loader, AlertTriangle } from "lucide-react";
+import {
+  Send,
+  Mail,
+  MessageSquare,
+  User,
+  Loader,
+  AlertTriangle,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 
 export default function ContactPage() {
@@ -10,7 +17,9 @@ export default function ContactPage() {
   const [mail, setMail] = useState("");
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [statusType, setStatusType] = useState<"success" | "error" | "warning">("success");
+  const [statusType, setStatusType] = useState<"success" | "error" | "warning">(
+    "success"
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +29,7 @@ export default function ContactPage() {
     const fromEmail = data?.user?.email || mail;
 
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("https://egydragon-anas.vercel.app/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -48,8 +57,10 @@ export default function ContactPage() {
         }
       }
     } catch (e) {
-      setStatus("❌ Network error. Please check your connection and try again." );
-      console.log(e)
+      setStatus(
+        "❌ Network error. Please check your connection and try again."
+      );
+      console.log(e);
       setStatusType("error");
     }
 
@@ -59,7 +70,11 @@ export default function ContactPage() {
   // فحص إذا كان الإيميل من Outlook
   const isOutlookEmail = (email: string) => {
     const domain = email.split("@")[1]?.toLowerCase();
-    return domain?.includes("outlook") || domain?.includes("hotmail") || domain?.includes("live");
+    return (
+      domain?.includes("outlook") ||
+      domain?.includes("hotmail") ||
+      domain?.includes("live")
+    );
   };
 
   const currentEmail = data?.user?.email || mail;
@@ -94,7 +109,9 @@ export default function ContactPage() {
                     Outlook/Hotmail not supported
                   </p>
                   <p className="text-xs text-orange-600 mt-1">
-                    {"Please use Gmail or another email provider due to Microsoft's security restrictions."}
+                    {
+                      "Please use Gmail or another email provider due to Microsoft's security restrictions."
+                    }
                   </p>
                 </div>
               </div>
@@ -117,13 +134,19 @@ export default function ContactPage() {
                   placeholder="Enter your email (Gmail recommended)"
                   required={!data?.user?.email}
                   className={`w-full p-4 pl-12 bg-gradient-to-r from-gray-50 to-gray-100 border-2 transition-all duration-300 focus:outline-none rounded-xl text-gray-600
-                    ${data?.user?.email ? "cursor-not-allowed bg-gray-200 border-gray-200" : 
-                      showOutlookWarning ? "border-orange-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10" :
-                      "border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 cursor-text"}`}
+                    ${
+                      data?.user?.email
+                        ? "cursor-not-allowed bg-gray-200 border-gray-200"
+                        : showOutlookWarning
+                        ? "border-orange-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10"
+                        : "border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 cursor-text"
+                    }`}
                 />
-                <Mail className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                  showOutlookWarning ? "text-orange-400" : "text-emerald-400"
-                }`} />
+                <Mail
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                    showOutlookWarning ? "text-orange-400" : "text-emerald-400"
+                  }`}
+                />
               </div>
             </div>
 
@@ -151,9 +174,10 @@ export default function ContactPage() {
               type="submit"
               disabled={isLoading || showOutlookWarning}
               className={`w-full px-6 py-4 rounded-xl font-semibold text-lg shadow-lg transform transition-all duration-300 flex items-center justify-center gap-3 
-                ${showOutlookWarning 
-                  ? "bg-gray-400 cursor-not-allowed text-white" 
-                  : isLoading 
+                ${
+                  showOutlookWarning
+                    ? "bg-gray-400 cursor-not-allowed text-white"
+                    : isLoading
                     ? "bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-500 opacity-50 cursor-not-allowed text-white"
                     : "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                 }`}
@@ -179,13 +203,15 @@ export default function ContactPage() {
 
           {/* Status message */}
           {status && (
-            <div className={`mt-6 p-4 rounded-xl flex items-center gap-3 shadow-lg border ${
-              statusType === "success" 
-                ? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200"
-                : statusType === "warning"
+            <div
+              className={`mt-6 p-4 rounded-xl flex items-center gap-3 shadow-lg border ${
+                statusType === "success"
+                  ? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200"
+                  : statusType === "warning"
                   ? "bg-gradient-to-r from-orange-50 to-yellow-50 text-orange-700 border-orange-200"
                   : "bg-gradient-to-r from-red-50 to-pink-50 text-red-700 border-red-200"
-            }`}>
+              }`}
+            >
               <span className="text-sm text-black font-medium">{status}</span>
             </div>
           )}
@@ -193,10 +219,12 @@ export default function ContactPage() {
 
         <div className="text-center mt-6 text-sm text-gray-600">
           <p className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent font-medium">
-            We appreciate your message and strive to respond as quickly as possible
+            We appreciate your message and strive to respond as quickly as
+            possible
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            Currently supporting Gmail and other providers (Outlook/Hotmail not supported)
+            Currently supporting Gmail and other providers (Outlook/Hotmail not
+            supported)
           </p>
         </div>
       </div>
