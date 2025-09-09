@@ -7,7 +7,7 @@ async function GetPosts() {
   // احصل على الـ cookies من الـ request
   const cookieStore = cookies();
   
-  const res = await fetch("https://egy-dragon-platform.vercel.app/api/userPosts", {
+  const res = await fetch("https://egydragon-anas.vercel.app/api/userPosts", {
     cache: "no-store",
     headers: {
       'Cookie': cookieStore.toString(),
