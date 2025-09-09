@@ -122,7 +122,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
-          <Link href="/" className="block text-black select-none hover:text-blue-600">
+          <Link href="/" className="block text-black select-none hover:text-blue-600 active:text-red-500">
             Home
           </Link>
           <Link href="/about" className="block select-none text-black hover:text-blue-600">

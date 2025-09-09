@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
-import { prisma } from "@/prisma/client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,9 +22,6 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const posts = await prisma.post.findMany();
-  const hasPosts = posts.length > 0;
-
   return (
     <html lang="en">
       <body

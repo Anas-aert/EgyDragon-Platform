@@ -1,59 +1,109 @@
 import { getServerSession } from "next-auth";
 import Image from "next/image";
+import { authOptions } from "../lib/nextAuth";
+import { cookies } from 'next/headers'; // ✅ إضافة مهمة
+
+async function GetPosts() {
+  // احصل على الـ cookies من الـ request
+  const cookieStore = cookies();
+  
+  const res = await fetch("http://localhost:3000/api/userPosts", {
+    cache: "no-store",
+    headers: {
+      'Cookie': cookieStore.toString(),
+    }
+  });
+    
+  const posts = await res.json();
+  
+  if (!Array.isArray(posts) || posts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-xl text-gray-500">
+          No posts found. Start by creating your first post!
+        </div>
+      </div>
+    );
+  } else {
+    const postsJSX = posts.map((post, key) => {
+      return (
+        <div
+          key={key}
+          className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100"
+        >
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 leading-tight">
+            {post.title}
+          </h2>
+          <div className="text-gray-600 leading-relaxed break-words">
+            {post.content}
+          </div>
+        </div>
+      );
+    });
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Your Posts</h2>
+        {postsJSX}
+      </div>
+    );
+  }
+}
 
 const Profile = async () => {
-  // لازم تمرر authOptions
-  const data = await getServerSession();
-
-  // const res = await fetch("http://localhost:3000/api/posts", {
-  //   cache: "no-store",
-  // });
-  // const posts = await res.json();
-  const postsJSX = "";
-
-  // const postsJSX = posts.map((post, key) => (
-  //   <div
-  //     key={key}
-  //     className="mt-4 rounded-xl bg-white shadow-md hover:shadow-lg text-center transition-shadow duration-300 w-full max-w-4xl mx-auto p-6"
-  //   >
-  //     <h2 className="text-3xl font-bold text-gray-800 mb-4 leading-tight">
-  //       {post.title}
-  //     </h2>
-  //     <div className="text-lg text-gray-700 leading-relaxed break-words">
-  //       {post.content}
-  //     </div>
-  //   </div>
-  // ));
+  const data = await getServerSession(authOptions);
 
   return (
-    <div className="h-full">
-      <div className="flex flex-col items-center justify-center p-8">
-        {!data && (
-          <p className="text-black">Please login to access your profile.</p>
-        )}
-        {data && (
-          <div className="bg-white shadow-md rounded-2xl p-6 w-full max-w-md text-center">
-            <h1 className="mb-4 text-xl font-semibold text-black">
-              Name: {data.user?.name}
-            </h1>
-            {data.user?.image && (
-              <Image
-                src={data.user.image}
-                alt="User Image"
-                width={300}
-                height={300}
-                className="w-32 h-32 rounded-full mx-auto mb-4"
-              />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="flex flex-col gap-8">
+          {/* قسم الملف الشخصي */}
+          <div className="flex flex-col items-center justify-center p-6">
+            {!data && (
+              <p className="text-black text-lg bg-white p-4 rounded-xl shadow-md">
+                Please login to access your profile.
+              </p>
             )}
-            <h4 className="mb-4 text-black">Email: {data.user?.email}</h4>
+            {data && (
+              <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center border border-gray-100">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">
+                  Your Profile
+                </h1>
+                {data.user?.image && (
+                  <div className="mb-6">
+                    <Image
+                      src={data.user.image}
+                      alt="User Image"
+                      width={128}
+                      height={128}
+                      className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-100 shadow-md"
+                    />
+                  </div>
+                )}
+                <div className="space-y-3">
+                  <p className="text-lg text-gray-700">
+                    <span className="font-semibold">Name:</span> {data.user?.name}
+                  </p>
+                  <p className="text-lg text-gray-700">
+                    <span className="font-semibold">Email:</span> {data.user?.email}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      {/* <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          <div className="space-y-6">{postsJSX}</div>
+
+          {/* Add new Post */}
+          <div className="flex flex-row justify-center items-center">
+            <span className="bg-gradient-to-r duration-700 transition-all  cursor-pointer from-red-600 via-purple-600 to-blue-700 hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl  cursor-pointer select-none  p-5 text-xl ">Add Post</span>
+          </div>
+
+          {/* قسم المنشورات - بس لو في session */}
+          {data && (
+            <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
+              <GetPosts />
+            </div>
+          )}
         </div>
-      </main> */}
+      </div>
     </div>
   );
 };

@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
     data: userValidation.data,
   });
 
-
     return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
     return NextResponse.json(

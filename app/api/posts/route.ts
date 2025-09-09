@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import postSchema from "./schema";
 
 // ✅ GET Posts
-export async function GET(request: NextRequest) {
+export async function GET() {
   const posts = await prisma.post.findMany();
 
   if (!posts || posts.length === 0) {
