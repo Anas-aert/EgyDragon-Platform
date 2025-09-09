@@ -12,6 +12,11 @@ async function GetPosts() {
     headers: {
       'Cookie': cookieStore.toString(),
     }
+  }) || await fetch("egy-dragon-platform-git-main-anas-aerts-projects.vercel.app/api/userPosts", {
+    cache: "no-store",
+    headers: {
+      'Cookie': cookieStore.toString(),
+    }
   });
     
   const posts = await res.json();
