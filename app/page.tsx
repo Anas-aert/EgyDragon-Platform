@@ -1,5 +1,5 @@
 export default async function Home() {
-  const res = await fetch("/api/posts", {
+  const res = await fetch("https://egy-dragon-platform.vercel.app/api/posts", {
     cache: "no-store",
   })
 
