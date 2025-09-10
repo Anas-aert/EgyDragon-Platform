@@ -97,7 +97,6 @@ const Profile = async () => {
           {/* Add new Post */}
           <div className="flex flex-row justify-center items-center">
             <AddNewPost />
-            Add Post
           </div>
 
           {/* قسم المنشورات - بس لو في session */}
