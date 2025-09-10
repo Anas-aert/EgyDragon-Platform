@@ -4,12 +4,12 @@ import { Sparkles } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Particles from "./Particles";
 import Image from "next/image";
-
-
+import { SaveUsersss } from "@/app/saveusersintodb";
 
 export default function LoginPage() {
   const handleSocialLogin = (provider: string) => {
-    signIn(provider, {redirect:true, callbackUrl:"/"});
+    signIn(provider, { redirect: true, callbackUrl: "/" });
+    SaveUsersss();
   };
 
   return (
@@ -23,7 +23,7 @@ export default function LoginPage() {
 
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden">
-        <Particles /> 
+        <Particles />
       </div>
 
       {/* Main content */}
@@ -76,7 +76,13 @@ export default function LoginPage() {
                 onClick={() => handleSocialLogin("github")}
                 className="w-full cursor-pointer flex items-center justify-center space-x-4 bg-gray-900 hover:bg-gray-800 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group"
               >
-                <Image className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" width={50} height={50} src={"/github-mark.svg"} alt="Github"/>
+                <Image
+                  className="w-6 h-6 group-hover:scale-110 transition-transform duration-200"
+                  width={50}
+                  height={50}
+                  src={"/github-mark.svg"}
+                  alt="Github"
+                />
                 <span className="text-lg">Continue with GitHub</span>
               </button>
             </div>
