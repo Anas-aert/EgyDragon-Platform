@@ -2,22 +2,7 @@ import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { authOptions } from "../lib/nextAuth";
 import { cookies } from "next/headers"; // ✅ إضافة مهمة
-
-async function addNewPost() {
-  const data = await getServerSession(authOptions);
-  const title = "Anas";
-  const content = "Tiiiiktooook";
-  const res = await fetch("https://egydragon-anas.vercel.app/api/contact", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      title: title,
-      content: content,
-      autherId: data.user.id,
-    }),
-  });
-  return res;
-}
+import { AddNewPost } from "../_components/AddPost";
 
 async function GetPosts() {
   // احصل على الـ cookies من الـ request
@@ -111,12 +96,8 @@ const Profile = async () => {
 
           {/* Add new Post */}
           <div className="flex flex-row justify-center items-center">
-            <span
-              onClick={addNewPost}
-              className="bg-gradient-to-r duration-700 transition-all from-red-600 via-purple-600 to-blue-700 hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl cursor-pointer select-none  p-5 text-xl "
-            >
-              Add Post
-            </span>
+            <AddNewPost />
+            Add Post
           </div>
 
           {/* قسم المنشورات - بس لو في session */}
