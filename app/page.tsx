@@ -10,7 +10,7 @@ export default async function Home() {
     return (
       <div className="text-center">
         <div className="absolute top-6/12 left-6/12 -translate-x-6/12 -translate-z-6/12 text-2xl">
-          No posts found
+          No posts found 😶
         </div>
       </div>
     );

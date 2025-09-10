@@ -1,21 +1,37 @@
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { authOptions } from "../lib/nextAuth";
-import { cookies } from 'next/headers'; // ✅ إضافة مهمة
+import { cookies } from "next/headers"; // ✅ إضافة مهمة
+
+async function addNewPost() {
+  const data = await getServerSession(authOptions);
+  const title = "Anas";
+  const content = "Tiiiiktooook";
+  const res = await fetch("https://egydragon-anas.vercel.app/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: title,
+      content: content,
+      autherId: data.user.id,
+    }),
+  });
+  return res;
+}
 
 async function GetPosts() {
   // احصل على الـ cookies من الـ request
   const cookieStore = cookies();
-  
+
   const res = await fetch("https://egydragon-anas.vercel.app/api/userPosts", {
     cache: "no-store",
     headers: {
-      'Cookie': cookieStore.toString(),
-    }
-  })
-    
+      Cookie: cookieStore.toString(),
+    },
+  });
+
   const posts = await res.json();
-  
+
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
       <div className="text-center py-12">
@@ -81,10 +97,12 @@ const Profile = async () => {
                 )}
                 <div className="space-y-3">
                   <p className="text-lg text-gray-700">
-                    <span className="font-semibold">Name:</span> {data.user?.name}
+                    <span className="font-semibold">Name:</span>{" "}
+                    {data.user?.name}
                   </p>
                   <p className="text-lg text-gray-700">
-                    <span className="font-semibold">Email:</span> {data.user?.email}
+                    <span className="font-semibold">Email:</span>{" "}
+                    {data.user?.email}
                   </p>
                 </div>
               </div>
@@ -93,7 +111,12 @@ const Profile = async () => {
 
           {/* Add new Post */}
           <div className="flex flex-row justify-center items-center">
-            <span className="bg-gradient-to-r duration-700 transition-all from-red-600 via-purple-600 to-blue-700 hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl cursor-pointer select-none  p-5 text-xl ">Add Post</span>
+            <span
+              onClick={addNewPost}
+              className="bg-gradient-to-r duration-700 transition-all from-red-600 via-purple-600 to-blue-700 hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl cursor-pointer select-none  p-5 text-xl "
+            >
+              Add Post
+            </span>
           </div>
 
           {/* قسم المنشورات - بس لو في session */}
