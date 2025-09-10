@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useSession } from "next-auth/react";
 
@@ -14,9 +14,9 @@ export const AddNewPost = () => {
 
     const title = "Anas";
     const content = "Tiiiiktooook";
-    
+
     try {
-      const res = await fetch("https://egydragon-anas.vercel.app/api/contact", {
+      const res = await fetch("https://egydragon-anas.vercel.app/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -25,14 +25,13 @@ export const AddNewPost = () => {
           autherId: data.user.id,
         }),
       });
-      
+
       if (!res.ok) {
         throw new Error("Failed to add post");
       }
-      
+
       const result = await res.json();
       console.log("Post added successfully:", result);
-      
     } catch (error) {
       console.error("Error adding post:", error);
     }
