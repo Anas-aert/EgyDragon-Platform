@@ -6,11 +6,11 @@ export default async function Home() {
   });
 
   if (!res.ok) {
-    console.error("API error:", res.status);
+    
     return (
       <div className="text-center">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl">
-          Failed to load posts 😢 (status {res.status})
+        <div className="absolute top-6/12 left-6/12 -translate-x-6/12 -translate-z-6/12 text-2xl">
+          No posts found
         </div>
       </div>
     );
