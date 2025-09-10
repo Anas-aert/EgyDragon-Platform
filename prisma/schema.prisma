@@ -12,8 +12,8 @@ model User {
   name      String
   email     String   @unique
   image     String?
-  posts     Post[]
   createdAt DateTime @default(now())
+  posts     Post[]
 }
 
 model Post {
@@ -22,7 +22,7 @@ model Post {
   content   String
   published Boolean  @default(false)
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
 }
