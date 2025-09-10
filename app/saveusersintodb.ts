@@ -4,7 +4,7 @@ import { authOptions } from "./lib/nextAuth";
 export async function SaveUsersss() {
   const session = await getServerSession(authOptions);
   if (session) {
-    const res = await fetch("https://egydragon-anas.vercel.app/api/contact", {
+    const res = await fetch("https://egydragon-anas.vercel.app/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
