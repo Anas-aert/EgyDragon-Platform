@@ -1,10 +1,12 @@
 // lib/nextAuth.ts
 import { prisma } from "@/prisma/client";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type AuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prisma), // إضافة هذا السطر
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
