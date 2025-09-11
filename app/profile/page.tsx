@@ -78,6 +78,7 @@ const Profile = async () => {
                       width={128}
                       height={128}
                       className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-100 shadow-md"
+                      loading="lazy"
                     />
                   </div>
                 )}

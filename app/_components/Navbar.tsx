@@ -68,6 +68,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
                   height={40}
                   alt="Profile"
                   className="rounded-full"
+                  priority
                 />
                 <span className="font-medium hidden lg:block text-black">
                   {user.name}
