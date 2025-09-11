@@ -11,7 +11,7 @@ export const AddNewPost = () => {
     if (!data?.user?.id) {
       console.error("User not authenticated");
       return;
-    }
+    } 
 
     setIsSubmitting(true);
 
@@ -22,7 +22,7 @@ export const AddNewPost = () => {
         body: JSON.stringify({
           title: title,
           content: content,
-          autherId: data.user.id,
+          authorId: data.user.id,
         }),
       });
 
