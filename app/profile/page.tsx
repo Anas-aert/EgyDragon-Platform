@@ -4,6 +4,7 @@ import { authOptions } from "../lib/nextAuth";
 import { cookies } from "next/headers"; // ✅ إضافة مهمة
 import { AddNewPost } from "../_components/AddPost";
 
+
 async function GetPosts() {
   // احصل على الـ cookies من الـ request
   const cookieStore = cookies();

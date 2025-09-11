@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
+
+
 interface PostDialogProps {
   onSubmit: (title: string, content: string) => void;
   children: React.ReactNode;
