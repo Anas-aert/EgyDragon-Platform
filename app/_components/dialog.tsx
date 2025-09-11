@@ -1,20 +1,20 @@
 "use client";
+
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
 
-
+// ✅ استدعاء مكونات Dialog بالـ dynamic import
+const Dialog = dynamic(() => import("@/components/ui/dialog").then(m => m.Dialog), { ssr: false });
+const DialogTrigger = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogTrigger), { ssr: false });
+const DialogContent = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogContent), { ssr: false });
+const DialogHeader = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogHeader), { ssr: false });
+const DialogTitle = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogTitle), { ssr: false });
+const DialogDescription = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogDescription), { ssr: false });
+const DialogFooter = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogFooter), { ssr: false });
+const DialogClose = dynamic(() => import("@/components/ui/dialog").then(m => m.DialogClose), { ssr: false });
 
 interface PostDialogProps {
   onSubmit: (title: string, content: string) => void;
@@ -38,10 +38,8 @@ export function PostDialog({ onSubmit, children }: PostDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      
+      <DialogTrigger asChild>{children}</DialogTrigger>
+
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -50,7 +48,7 @@ export function PostDialog({ onSubmit, children }: PostDialogProps) {
               Create new Post in your profile
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="grid gap-3">
               <Label htmlFor="post-title">Title</Label>
@@ -73,7 +71,7 @@ export function PostDialog({ onSubmit, children }: PostDialogProps) {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">

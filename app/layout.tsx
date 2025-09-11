@@ -27,6 +27,9 @@ export const metadata: Metadata = {
     "Anas Muhammed",
     "Programming",
     "Blog",
+    "EgyDragon",
+    "Anas Muhammad",
+    "Anas Muhammad EgyDrag",
   ],
   authors: [{ name: "Anas Muhammed" }],
   alternates: {
@@ -34,7 +37,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "EgyDragon - Anas's Blog",
-    description: "Python & Full-Stack Programmer sharing projects and tutorials",
+    description:
+      "Python & Full-Stack Programmer sharing projects and tutorials",
     url: "https://egydragon-anas.vercel.app/",
     siteName: "EgyDragon Blog",
     locale: "en_US",
