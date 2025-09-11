@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Anas's Bloger",
+  title: "EgyDrag Anas's Bloger",
   description: "created by Anas Muhammed: Python & Full-Stack Programmer",
 };
 
