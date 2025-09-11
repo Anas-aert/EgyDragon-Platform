@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default async function RootLayout({
       >
         <NextAuthProvider>
           <NavBar />
+
           {/* المحتوى اللي هيتوسع */}
           <main className="flex-grow">{children}</main>
         </NextAuthProvider>
@@ -43,6 +45,7 @@ export default async function RootLayout({
             Programmer
           </p>
         </footer>
+        <Analytics />
       </body>
     </html>
   );
