@@ -95,9 +95,11 @@ const Profile = async () => {
           </div>
 
           {/* Add new Post */}
-          <div className="flex flex-row justify-center items-center">
-            <AddNewPost />
-          </div>
+          {data && (
+            <div className="flex flex-row justify-center items-center">
+              <AddNewPost />
+            </div>
+          )}
 
           {/* قسم المنشورات - بس لو في session */}
           {data && (
