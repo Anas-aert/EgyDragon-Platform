@@ -95,7 +95,7 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-              <Image src={user.image} alt="User Image" width={200} height={100} className="w-5 h-5 text-white" />
+              <Image src={user.image} alt="User Image" width={200} height={100} className="w-10 h-10 rounded-full text-white" />
             </div>
             <div>
               <p className="font-semibold text-gray-800">
