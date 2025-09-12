@@ -38,31 +38,21 @@ const PostSkeleton = () => (
 );
 
 // Error boundary component
-const ErrorDisplay = ({
-  type,
-  title,
-  message,
-}: {
-  type: "loading" | "data" | "empty";
-  title: string;
-  message: string;
-}) => {
+const ErrorDisplay = ({ type, title, message }: { type: 'loading' | 'data' | 'empty', title: string, message: string }) => {
   const gradients = {
     loading: "from-red-50 to-red-100",
-    data: "from-yellow-50 to-orange-100",
-    empty: "from-blue-50 to-indigo-100",
+    data: "from-yellow-50 to-orange-100", 
+    empty: "from-blue-50 to-indigo-100"
   };
 
   const colors = {
     loading: "text-red-500",
     data: "text-orange-500",
-    empty: "text-blue-600",
+    empty: "text-blue-600"
   };
 
   return (
-    <div
-      className={`min-h-screen bg-gradient-to-br ${gradients[type]} flex items-center justify-center`}
-    >
+    <div className={`min-h-screen bg-gradient-to-br ${gradients[type]} flex items-center justify-center`}>
       <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4">
         <AlertCircle className={`w-16 h-16 ${colors[type]} mx-auto mb-4`} />
         <h2 className="text-2xl font-bold text-gray-800 mb-2">{title}</h2>
@@ -73,7 +63,7 @@ const ErrorDisplay = ({
 };
 
 // Optimized Post component with memoization
-const PostCard = ({ post, index }: { post: Post; index: number }) => (
+const PostCard = ({ post, index }: { post: Post, index: number }) => (
   <article
     className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden will-change-transform"
     style={{
@@ -110,8 +100,18 @@ const PostCard = ({ post, index }: { post: Post; index: number }) => (
 
     {/* Post Content */}
     <div className="px-8 py-6">
-      <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-4">
-        {post.content}
+      <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-4 overflow-hidden">
+        <div 
+          className="line-clamp-text"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}
+        >
+          {post.content}
+        </div>
       </div>
     </div>
 
@@ -119,7 +119,7 @@ const PostCard = ({ post, index }: { post: Post; index: number }) => (
     <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-6">
-          <button
+          <button 
             type="button"
             className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors duration-200 group/btn"
             aria-label="Like post"
@@ -127,7 +127,7 @@ const PostCard = ({ post, index }: { post: Post; index: number }) => (
             <Heart className="w-5 h-5 group-hover/btn:fill-current" />
             <span className="text-sm font-medium">Like</span>
           </button>
-          <button
+          <button 
             type="button"
             className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200"
             aria-label="Comment on post"
@@ -135,7 +135,7 @@ const PostCard = ({ post, index }: { post: Post; index: number }) => (
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">Comment</span>
           </button>
-          <button
+          <button 
             type="button"
             className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors duration-200"
             aria-label="Share post"
@@ -155,13 +155,13 @@ async function fetchPosts(): Promise<Post[]> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
+    
     const res = await fetch("https://egydragon-anas.vercel.app/api/posts", {
       cache: "no-store",
       signal: controller.signal,
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
 
@@ -172,14 +172,14 @@ async function fetchPosts(): Promise<Post[]> {
     }
 
     const posts = await res.json();
-
+    
     if (!Array.isArray(posts)) {
-      throw new Error("Invalid response format: expected array");
+      throw new Error('Invalid response format: expected array');
     }
 
     return posts;
   } catch (error) {
-    console.error("Failed to fetch posts:", error);
+    console.error('Failed to fetch posts:', error);
     throw error;
   }
 }
@@ -191,27 +191,15 @@ export default async function Home() {
   try {
     posts = await fetchPosts();
   } catch (err) {
-    error = err instanceof Error ? err.message : "Unknown error occurred";
+    error = err instanceof Error ? err.message : 'Unknown error occurred';
   }
 
   // Handle errors
   if (error) {
-    if (error.includes("HTTP error") || error.includes("aborted")) {
-      return (
-        <ErrorDisplay
-          type="loading"
-          title="Loading Error"
-          message="Failed to load posts"
-        />
-      );
+    if (error.includes('HTTP error') || error.includes('aborted')) {
+      return <ErrorDisplay type="loading" title="Loading Error" message="Failed to load posts" />;
     }
-    return (
-      <ErrorDisplay
-        type="data"
-        title="Data Error"
-        message="Invalid response format 🚨"
-      />
-    );
+    return <ErrorDisplay type="data" title="Data Error" message="Invalid response format 🚨" />;
   }
 
   // Handle empty state
@@ -231,17 +219,11 @@ export default async function Home() {
           <p className="text-gray-600 text-lg">
             Start by creating your first post!
           </p>
-          <div
-            className="mt-8 flex justify-center space-x-2"
-            role="status"
-            aria-label="Loading"
-          >
+          <div className="mt-8 flex justify-center space-x-2" role="status" aria-label="Loading">
             {[0, 0.2, 0.4].map((delay, i) => (
               <div
                 key={i}
-                className={`w-3 h-3 bg-${
-                  ["blue", "purple", "pink"][i]
-                }-400 rounded-full animate-bounce`}
+                className={`w-3 h-3 bg-${['blue', 'purple', 'pink'][i]}-400 rounded-full animate-bounce`}
                 style={{ animationDelay: `${delay}s` }}
               ></div>
             ))}
@@ -301,19 +283,19 @@ export default async function Home() {
             transform: translateY(0);
           }
         }
-
+        
         .line-clamp-4 {
           display: -webkit-box;
           -webkit-line-clamp: 4;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-
+        
         /* Enable GPU acceleration */
         .will-change-transform {
           will-change: transform;
         }
-
+        
         /* Optimize animations */
         @media (prefers-reduced-motion: reduce) {
           * {
