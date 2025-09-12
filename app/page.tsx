@@ -14,8 +14,12 @@ import { Suspense } from "react";
 
 async function getUser() {
   const data = await getServerSession();
-  const userName = data.user.name;
-  return userName;
+  try {
+    const userName = data.user.name;
+    return userName;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // Loading skeleton component for better UX
@@ -81,7 +85,7 @@ const ErrorDisplay = ({
 // Optimized Post component
 const PostCard = ({ post, index }: { post: Post; index: number }) => (
   <article
-    className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
+    className="group bg-white/70 backdrop-blur-sm rounded-2xl mb-5 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
     style={{
       animationDelay: `${index * 0.1}s`,
     }}
