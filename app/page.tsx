@@ -103,7 +103,7 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
               </p>
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="w-3 h-3 mr-1" />
-                <time>{post.createdAt.toLocaleDateString()}</time>
+                <time>{new Date(post.createdAt).toLocaleDateString()}</time>
               </div>
             </div>
           </div>
@@ -163,6 +163,7 @@ async function fetchPosts(): Promise<Post[]> {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
+      
     });
 
     clearTimeout(timeoutId);
@@ -172,6 +173,7 @@ async function fetchPosts(): Promise<Post[]> {
     }
 
     const posts = await res.json();
+    
 
     if (!Array.isArray(posts)) {
       throw new Error("Invalid response format: expected array");
