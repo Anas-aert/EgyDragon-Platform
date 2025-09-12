@@ -81,7 +81,7 @@ const ErrorDisplay = ({
 // Optimized Post component
 const PostCard = ({ post, index }: { post: Post; index: number }) => (
   <article
-    className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up flex flex-col-reverse will-change-transform"
+    className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
     style={{
       animationDelay: `${index * 0.1}s`,
     }}
@@ -285,7 +285,11 @@ export default async function Home() {
 
       {/* Posts Container */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-8" role="feed" aria-label="Blog posts">
+        <div
+          className="space-y-8 flex flex-col-reverse"
+          role="feed"
+          aria-label="Blog posts"
+        >
           <Suspense fallback={<PostSkeleton />}>
             {posts.map((post, index) => (
               <PostCard key={post.id || index} post={post} index={index} />
