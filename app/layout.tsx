@@ -54,6 +54,12 @@ export default async function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+
+        {/* Google Search Console verification */}
+        <meta
+          name="google-site-verification"
+          content="K_ia_fdAuYdnwaITlI-2Khh1EnbHbDojnvzzwHsbCDs"
+        />
       </head>
       <body
         className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -77,3 +83,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
