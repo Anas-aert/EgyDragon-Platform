@@ -129,15 +129,15 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
       <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors duration-200 group/btn">
+            <button className="flex items-center cursor-pointer space-x-2 text-gray-500 hover:text-red-500 transition-colors duration-200 group/btn">
               <Heart className="w-5 h-5 group-hover/btn:fill-current" />
               <span className="text-sm font-medium">Like</span>
             </button>
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200">
+            <button className="flex items-center cursor-pointer space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200">
               <MessageCircle className="w-5 h-5" />
               <span className="text-sm font-medium">Comment</span>
             </button>
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors duration-200">
+            <button className="flex items-center cursor-pointer space-x-2 text-gray-500 hover:text-green-500 transition-colors duration-200">
               <Share2 className="w-5 h-5" />
               <span className="text-sm font-medium">Share</span>
             </button>
