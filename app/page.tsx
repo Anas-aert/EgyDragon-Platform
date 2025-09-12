@@ -4,7 +4,6 @@ import {
   FileText,
   AlertCircle,
   Calendar,
-  User,
   Heart,
   MessageCircle,
   Share2,
