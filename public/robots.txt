@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://egydragon-anas.vercel.app
+
+# Sitemaps
+Sitemap: https://egydragon-anas.vercel.app/sitemap.xml
