@@ -2,7 +2,6 @@ import { Post } from "@prisma/client";
 import {
   FileText,
   AlertCircle,
-  RefreshCw,
   Calendar,
   User,
   Heart,
@@ -62,13 +61,12 @@ const ErrorDisplay = ({ type, title, message }: { type: 'loading' | 'data' | 'em
   );
 };
 
-// Optimized Post component with memoization
+// Optimized Post component
 const PostCard = ({ post, index }: { post: Post, index: number }) => (
   <article
-    className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden will-change-transform"
+    className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
     style={{
       animationDelay: `${index * 0.1}s`,
-      animation: "fadeInUp 0.6s ease-out forwards",
     }}
   >
     {/* Post Header */}
@@ -100,18 +98,8 @@ const PostCard = ({ post, index }: { post: Post, index: number }) => (
 
     {/* Post Content */}
     <div className="px-8 py-6">
-      <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-4 overflow-hidden">
-        <div 
-          className="line-clamp-text"
-          style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 4,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}
-        >
-          {post.content}
-        </div>
+      <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-text">
+        {post.content}
       </div>
     </div>
 
@@ -270,41 +258,6 @@ export default async function Home() {
           </Suspense>
         </div>
       </div>
-
-      {/* Optimized CSS with modern properties */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .line-clamp-4 {
-          display: -webkit-box;
-          -webkit-line-clamp: 4;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        
-        /* Enable GPU acceleration */
-        .will-change-transform {
-          will-change: transform;
-        }
-        
-        /* Optimize animations */
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </main>
   );
 }
