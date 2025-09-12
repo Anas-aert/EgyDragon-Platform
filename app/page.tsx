@@ -1,3 +1,4 @@
+import { prisma } from "@/prisma/client";
 import { Post } from "@prisma/client";
 import {
   FileText,
@@ -9,17 +10,15 @@ import {
   Share2,
   Eye,
 } from "lucide-react";
-import { getServerSession } from "next-auth";
 import { Suspense } from "react";
 
-async function getUser() {
-  const data = await getServerSession();
-  try {
-    const userName = data.user.name;
-    return userName;
-  } catch (error) {
-    console.log(error);
-  }
+async function getUser(userId) {
+  const uname = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  return uname;
 }
 
 // Loading skeleton component for better UX
@@ -83,81 +82,73 @@ const ErrorDisplay = ({
 };
 
 // Optimized Post component
-const PostCard = ({ post, index }: { post: Post; index: number }) => (
-  <article
-    className="group bg-white/70 backdrop-blur-sm rounded-2xl mb-5 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
-    style={{
-      animationDelay: `${index * 0.1}s`,
-    }}
-  >
-    {/* Post Header */}
-    <div className="px-8 pt-6 pb-4 border-b border-gray-100">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <p className="font-semibold text-gray-800">{getUser()}</p>
-            <div className="flex items-center text-sm text-gray-500">
-              <Calendar className="w-3 h-3 mr-1" />
-              <time dateTime={new Date().toISOString()}>Just now</time>
+const PostCard = async ({ post, index }: { post: Post; index: number }) => {
+  const user = await getUser(post.authorId);
+
+  return (
+    <article
+      className="group bg-white/70 backdrop-blur-sm rounded-2xl mb-5 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      {/* Post Header */}
+      <div className="px-8 pt-6 pb-4 border-b border-gray-100">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800">
+                {user?.name ?? "Unknown User"}
+              </p>
+              <div className="flex items-center text-sm text-gray-500">
+                <Calendar className="w-3 h-3 mr-1" />
+                <time>{post.createdAt.toLocaleDateString()}</time>
+              </div>
             </div>
           </div>
+          <div className="flex items-center space-x-2">
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+              Article
+            </span>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-            Article
-          </span>
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors duration-300">
+          {post.title}
+        </h2>
+      </div>
+
+      {/* Post Content */}
+      <div className="px-8 py-6">
+        <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-text">
+          {post.content}
         </div>
       </div>
 
-      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors duration-300">
-        {post.title}
-      </h2>
-    </div>
-
-    {/* Post Content */}
-    <div className="px-8 py-6">
-      <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-text">
-        {post.content}
-      </div>
-    </div>
-
-    {/* Post Footer */}
-    <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-          <button
-            type="button"
-            className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors duration-200 group/btn"
-            aria-label="Like post"
-          >
-            <Heart className="w-5 h-5 group-hover/btn:fill-current" />
-            <span className="text-sm font-medium">Like</span>
-          </button>
-          <button
-            type="button"
-            className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200"
-            aria-label="Comment on post"
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-sm font-medium">Comment</span>
-          </button>
-          <button
-            type="button"
-            className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors duration-200"
-            aria-label="Share post"
-          >
-            <Share2 className="w-5 h-5" />
-            <span className="text-sm font-medium">Share</span>
-          </button>
+      {/* Post Footer */}
+      <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-6">
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors duration-200 group/btn">
+              <Heart className="w-5 h-5 group-hover/btn:fill-current" />
+              <span className="text-sm font-medium">Like</span>
+            </button>
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200">
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">Comment</span>
+            </button>
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors duration-200">
+              <Share2 className="w-5 h-5" />
+              <span className="text-sm font-medium">Share</span>
+            </button>
+          </div>
+          <div className="text-xs text-gray-400">Post #{index + 1}</div>
         </div>
-        <div className="text-xs text-gray-400">Post #{index + 1}</div>
       </div>
-    </div>
-  </article>
-);
+    </article>
+  );
+};
+
 
 // Fetch posts with improved error handling
 async function fetchPosts(): Promise<Post[]> {
