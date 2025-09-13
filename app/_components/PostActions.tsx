@@ -20,13 +20,19 @@ export default function PostActions({
 }: {
   postId: string;
   userId: string;
-  initialLikes: Array<{ id: string; userId: string; user: { name: string; image?: string } }>;
+  initialLikes: Array<{
+    id: string;
+    userId: string;
+    user: { name: string; image?: string };
+  }>;
   initialComments: Comment[];
 }) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes.length);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [likesUsers, setLikesUsers] = useState(initialLikes.map((like) => like.user));
+  const [likesUsers, setLikesUsers] = useState(
+    initialLikes.map((like) => like.user)
+  );
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -104,7 +110,7 @@ export default function PostActions({
           <button
             onClick={handleLike}
             disabled={loading || !userId}
-            className={`flex items-center space-x-2 ${
+            className={`flex items-center cursor-pointer space-x-2 ${
               liked ? "text-red-500" : "text-gray-500 hover:text-red-500"
             } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
@@ -119,11 +125,13 @@ export default function PostActions({
               setShowComments(!showComments);
               if (!showComments && comments.length === 0) loadComments();
             }}
-            className="flex items-center space-x-2 text-gray-500 hover:text-blue-500"
+            className="flex cursor-pointer items-center space-x-2 text-gray-500 hover:text-blue-500"
           >
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">
-              {comments.length > 0 && <span className="mr-1">({comments.length})</span>}
+              {comments.length > 0 && (
+                <span className="mr-1">({comments.length})</span>
+              )}
               Comment
             </span>
           </button>
@@ -131,15 +139,29 @@ export default function PostActions({
         {likesUsers.length > 0 && (
           <div className="flex items-center space-x-1">
             {likesUsers.slice(0, 3).map((user, idx) => (
-              <div key={idx} className="w-6 h-6 rounded-full overflow-hidden border-2 border-white">
+              <div
+                key={idx}
+                className="w-6 h-6 rounded-full overflow-hidden border-2 border-white"
+              >
                 {user.image ? (
-                  <Image src={user.image} alt={user.name} width={24} height={24} />
+                  <Image
+                    src={user.image}
+                    alt={user.name}
+                    width={24}
+                    height={24}
+                  />
                 ) : (
-                  <span className="text-xs">{user.name.charAt(0).toUpperCase()}</span>
+                  <span className="text-xs">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
                 )}
               </div>
             ))}
-            {likesUsers.length > 3 && <span className="text-xs text-gray-500 ml-2">+{likesUsers.length - 3} more</span>}
+            {likesUsers.length > 3 && (
+              <span className="text-xs text-gray-500 ml-2">
+                +{likesUsers.length - 3} more
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -155,7 +177,8 @@ export default function PostActions({
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
+                onKeyUp={handleKeyPress}
                 placeholder="Write a comment..."
                 disabled={loading || !userId}
                 className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"
@@ -173,24 +196,37 @@ export default function PostActions({
 
           <div className="space-y-3">
             {comments.map((c) => (
-              <div key={c.id} className="flex items-start space-x-3 bg-white rounded-lg p-3 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                  {c.user.image ? (
-                    <Image src={c.user.image} alt={c.user.name} width={32} height={32} />
+              <div
+                key={c.id}
+                className="flex items-start space-x-3 bg-white rounded-lg p-3 shadow-sm"
+              >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
+                  {c.user?.image ? (
+                    <Image
+                      src={c.user.image}
+                      alt={c.user?.name || "Anonymous"}
+                      width={32}
+                      height={32}
+                      className="object-cover"
+                    />
                   ) : (
                     <User className="w-4 h-4 text-white" />
                   )}
                 </div>
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
-                    <p className="text-sm font-medium">{c.user.name}</p>
-                    <span className="text-xs text-gray-500">{new Date(c.createdAt).toLocaleDateString()}</span>
+                    <p className="text-sm font-medium">
+                      {c.user?.name || "Unknown"}
+                    </p>
+                    <span className="text-xs text-gray-500">
+                      {new Date(c.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   <p className="text-sm text-gray-700">{c.content}</p>
                 </div>
               </div>
             ))}
-            {comments.length === 0 && <p className="text-center text-gray-500 text-sm py-4">No comments yet.</p>}
           </div>
         </div>
       )}
