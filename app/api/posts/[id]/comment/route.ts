@@ -1,23 +1,18 @@
 import { prisma } from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-// ✅ Add Comment
 export async function POST(request: NextRequest) {
   try {
+    const { postId, userId, content } = await request.json();
 
-    const { id, userId, content } = await request.json();
-
-    if (!id)
+    if (!postId)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
     if (!userId || !content)
-      return NextResponse.json(
-        { error: "User ID and content required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "User ID and content required" }, { status: 400 });
 
     const comment = await prisma.comment.create({
-      data: { postId: id, userId, content },
+      data: { postId, userId, content },
       include: { user: true },
     });
 
@@ -27,26 +22,20 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to add comment" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to add comment" }, { status: 500 });
   }
 }
 
-// ✅ Get Comments
 export async function GET(request: NextRequest) {
   try {
-    const body = await request.json();
+    const postId = request.nextUrl.searchParams.get("postId");
 
-    if (!body.id)
+    if (!postId)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
     const comments = await prisma.comment.findMany({
-      where: { postId: body.id },
-      include: {
-        user: { select: { id: true, name: true, image: true } },
-      },
+      where: { postId },
+      include: { user: { select: { id: true, name: true, image: true } } },
       orderBy: { createdAt: "asc" },
     });
 
@@ -55,9 +44,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to fetch comments" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });
   }
 }

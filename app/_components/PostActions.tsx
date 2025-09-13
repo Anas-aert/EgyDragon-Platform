@@ -148,9 +148,7 @@ export default function PostActions({
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-500">
-              You should be Signedin
-            </p>
+            <p className="text-center text-gray-500">You should be Signedin</p>
           )}
 
           <div className="space-y-3">
