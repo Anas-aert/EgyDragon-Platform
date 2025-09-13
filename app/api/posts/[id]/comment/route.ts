@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // ✅ Add Comment
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { userId, content } = await request.json();
 
     if (!userId || !content) {
@@ -18,7 +19,7 @@ export async function POST(
 
     const comment = await prisma.comment.create({
       data: {
-        postId: params.id,
+        postId: resolvedParams.id,
         userId,
         content,
       },
@@ -37,11 +38,12 @@ export async function POST(
 // ✅ Get Comments
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const comments = await prisma.comment.findMany({
-      where: { postId: params.id },
+      where: { postId: resolvedParams.id },
       include: { user: true },
       orderBy: { createdAt: "asc" },
     });
