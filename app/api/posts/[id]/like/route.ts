@@ -4,12 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 // ✅ Add/Remove Like
 export async function POST(request: NextRequest) {
   try {
-    const { id } = await request.json();
+    const { id, userId } = await request.json();
 
     if (!id)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
-    const { userId } = await request.json();
     if (!userId)
       return NextResponse.json({ error: "User ID required" }, { status: 400 });
 

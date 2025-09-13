@@ -49,7 +49,7 @@ export default function PostActions({
       const res = await fetch(`/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId }),
+        body: JSON.stringify({ postId, userId }),
       });
       const data = await res.json();
       if (data.success) {
