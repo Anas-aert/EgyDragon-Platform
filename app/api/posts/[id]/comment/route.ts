@@ -1,37 +1,13 @@
 import { prisma } from "@/prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-
-// 🔹 Get Comments
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const comments = await prisma.comment.findMany({
-      where: { postId: params.id },
-      include: { user: true }, // يجيب بيانات الشخص اللي كتب التعليق
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ comments });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { error: "Failed to fetch comments" },
-      { status: 500 }
-    );
-  }
-}
-
-
-// 🔹 Add Comment
+// ✅ Add Comment
 export async function POST(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId, content } = await req.json();
+    const { userId, content } = await request.json();
 
     if (!userId || !content) {
       return NextResponse.json(
@@ -46,7 +22,6 @@ export async function POST(
         userId,
         content,
       },
-      include: { user: true }, // يجيب مع التعليق بيانات اليوزر
     });
 
     return NextResponse.json({ success: true, comment });
@@ -59,3 +34,24 @@ export async function POST(
   }
 }
 
+// ✅ Get Comments
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { postId: params.id },
+      include: { user: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return NextResponse.json(comments, { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: "Failed to fetch comments" },
+      { status: 500 }
+    );
+  }
+}

@@ -4,13 +4,17 @@ import postSchema from "./schema";
 
 // ✅ GET Posts
 export async function GET() {
-  const posts = await prisma.post.findMany();
+  const posts = await prisma.post.findMany({
+    include: {
+      author: true,
+      likes: true,
+      comments: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   if (!posts || posts.length === 0) {
-    return NextResponse.json(
-      { "Empty Page😢": "No posts found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ message: "No posts found 😢" }, { status: 404 });
   }
 
   return NextResponse.json(posts, { status: 200 });
@@ -21,17 +25,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate with Zod
     const postValidation = postSchema.safeParse(body);
-
     if (!postValidation.success) {
       return NextResponse.json(
-        { "Invalid Data": postValidation.error.issues[0].message },
+        { error: postValidation.error.issues[0].message },
         { status: 400 }
       );
     }
 
-    // Create post in DB
     const newPost = await prisma.post.create({
       data: postValidation.data,
     });
@@ -45,38 +46,38 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// ✅ DELETE Post
 export async function DELETE(request: NextRequest) {
-  const posts = await prisma.post.findMany();
-  const body = await request.json();
+  try {
+    const body = await request.json();
 
-  if (!posts || posts.length === 0) {
+    if (!body.id) {
+      return NextResponse.json(
+        { error: "Post ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await prisma.post.findUnique({
+      where: { id: body.id },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Post not found" },
+        { status: 404 }
+      );
+    }
+
+    const deletedPost = await prisma.post.delete({
+      where: { id: body.id },
+    });
+
+    return NextResponse.json({ deleted: deletedPost }, { status: 200 });
+  } catch (error) {
     return NextResponse.json(
-      { "No Posts!": "there's no posts to delete" },
-      { status: 404 }
+      { message: "Failed to delete post", error },
+      { status: 500 }
     );
   }
-  
-  const isExistingPost = await prisma.post.findUnique({
-    where: {
-      id: body.id,
-    },
-  })
-  if (!isExistingPost) {
-    return NextResponse.json({"Not found post!":"There is no post with this ID"}, {status:400})
-  }
-  console.log(body.id)
-
-  if (!body.id) {
-    return NextResponse.json({ "Unvalid Data!": "Your data is not valid" },
-      { status: 400 })
-  }
-
-
-
-  const deleted_post = await prisma.post.delete({
-    where: {
-      id: body.id,
-    },
-  })
-  return NextResponse.json({"deleted":deleted_post}, {status:200})
 }
