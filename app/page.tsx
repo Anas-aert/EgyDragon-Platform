@@ -10,14 +10,28 @@ import {
   MessageCircle,
   Eye,
   User,
+  Send,
 } from "lucide-react";
 import Image from "next/image";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 
 // 👇 تعريف نوع خاص للبوست اللي جاي من API
 type PostFromAPI = Omit<Post, "createdAt" | "updatedAt"> & {
   createdAt: string;
   updatedAt: string;
+  likes: Array<{ id: string; userId: string; user: { name: string; image?: string } }>;
+  comments: Array<{ id: string; content: string; userId: string; user: { name: string; image?: string }; createdAt: string }>;
+};
+
+type Comment = {
+  id: string;
+  content: string;
+  userId: string;
+  user: {
+    name: string;
+    image?: string;
+  };
+  createdAt: string;
 };
 
 async function getUser(userId: string) {
@@ -86,74 +100,265 @@ const ErrorDisplay = ({
   );
 };
 
-// 🔹 Post Actions (Like & Comment)
-function PostActions({ postId, userId }: { postId: string; userId: string }) {
+// 🔹 Post Actions (Like & Comment) - Updated with full backend integration
+function PostActions({ 
+  postId, 
+  userId, 
+  initialLikes = [], 
+  initialComments = [] 
+}: { 
+  postId: string; 
+  userId: string;
+  initialLikes: Array<{ id: string; userId: string; user: { name: string; image?: string } }>;
+  initialComments: Array<{ id: string; content: string; userId: string; user: { name: string; image?: string }; createdAt: string }>;
+}) {
   const [liked, setLiked] = useState(false);
-  const [comments, setComments] = useState<any[]>([]);
+  const [likesCount, setLikesCount] = useState(initialLikes.length);
+  const [likesUsers, setLikesUsers] = useState(initialLikes.map(like => like.user));
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [commentText, setCommentText] = useState("");
+  const [showComments, setShowComments] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // Check if user already liked the post
+  useEffect(() => {
+    setLiked(initialLikes.some(like => like.userId === userId));
+  }, [initialLikes, userId]);
+
+  // Handle Like Toggle
   const handleLike = async () => {
-    const res = await fetch(`/api/posts/${postId}/like`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-    const data = await res.json();
-    if (data.success) setLiked(data.liked);
+    if (loading || !userId) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch(`/api/posts/${postId}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        setLiked(data.liked);
+        // Update likes count and users list
+        if (data.liked) {
+          setLikesCount(prev => prev + 1);
+          // You might want to fetch updated likes list here
+        } else {
+          setLikesCount(prev => prev - 1);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Handle Comment Submit
   const handleComment = async () => {
-    if (!commentText.trim()) return;
-    const res = await fetch(`/api/posts/${postId}/comment`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, content: commentText }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      setComments([...comments, data.comment]);
-      setCommentText("");
+    if (!commentText.trim() || loading || !userId) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch(`/api/posts/${postId}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, content: commentText.trim() }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.success && data.comment) {
+        // Add the new comment to the list
+        const newComment: Comment = {
+          id: data.comment.id,
+          content: data.comment.content,
+          userId: data.comment.userId,
+          user: data.comment.user || { name: "Anonymous" },
+          createdAt: data.comment.createdAt || new Date().toISOString(),
+        };
+        
+        setComments(prev => [...prev, newComment]);
+        setCommentText("");
+        setShowComments(true);
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load Comments
+  const loadComments = async () => {
+    try {
+      const res = await fetch(`/api/posts/${postId}/comment`);
+      const data = await res.json();
+      
+      if (Array.isArray(data)) {
+        setComments(data);
+      }
+    } catch (error) {
+      console.error("Error loading comments:", error);
+    }
+  };
+
+  // Handle Enter key for comment submission
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleComment();
     }
   };
 
   return (
-    <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100">
-      <div className="flex items-center space-x-6">
-        <button
-          onClick={handleLike}
-          className={`flex items-center space-x-2 transition-colors duration-200 ${
-            liked ? "text-red-500" : "text-gray-500 hover:text-red-500"
-          }`}
-        >
-          <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
-          <span className="text-sm font-medium">{liked ? "Liked" : "Like"}</span>
-        </button>
+    <div className="border-t border-gray-100">
+      {/* Action Buttons */}
+      <div className="px-8 py-4 bg-gray-50/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-6">
+            {/* Like Button */}
+            <button
+              onClick={handleLike}
+              disabled={loading || !userId}
+              className={`flex items-center space-x-2 transition-all duration-200 ${
+                liked 
+                  ? "text-red-500" 
+                  : "text-gray-500 hover:text-red-500"
+              } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
+              <span className="text-sm font-medium">
+                {likesCount > 0 && <span className="mr-1">({likesCount})</span>}
+                {liked ? "Liked" : "Like"}
+              </span>
+            </button>
 
-        <div className="flex items-center space-x-2">
-          <MessageCircle className="w-5 h-5 text-gray-500" />
-          <input
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Write a comment..."
-            className="border rounded px-2 py-1 text-sm"
-          />
-          <button
-            onClick={handleComment}
-            className="text-blue-600 text-sm font-medium"
-          >
-            Send
-          </button>
+            {/* Comment Button */}
+            <button
+              onClick={() => {
+                setShowComments(!showComments);
+                if (!showComments && comments.length === 0) {
+                  loadComments();
+                }
+              }}
+              className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">
+                {comments.length > 0 && <span className="mr-1">({comments.length})</span>}
+                Comment
+              </span>
+            </button>
+          </div>
+
+          {/* Likes Users Preview */}
+          {likesUsers.length > 0 && (
+            <div className="flex items-center space-x-1">
+              <div className="flex -space-x-1">
+                {likesUsers.slice(0, 3).map((user, index) => (
+                  <div
+                    key={index}
+                    className="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center border-2 border-white"
+                    title={user.name}
+                  >
+                    {user.image ? (
+                      <Image
+                        src={user.image}
+                        alt={user.name}
+                        width={24}
+                        height={24}
+                        className="w-6 h-6 rounded-full"
+                      />
+                    ) : (
+                      <span className="text-xs text-white font-medium">
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {likesUsers.length > 3 && (
+                <span className="text-xs text-gray-500 ml-2">
+                  +{likesUsers.length - 3} more
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Show comments */}
-      <div className="mt-3 space-y-2">
-        {comments.map((c) => (
-          <p key={c.id} className="text-sm text-gray-700 border-l-2 border-gray-300 pl-2">
-            {c.content}
-          </p>
-        ))}
-      </div>
+      {/* Comments Section */}
+      {showComments && (
+        <div className="px-8 py-4 bg-gray-50/30 border-t border-gray-100">
+          {/* Comment Input */}
+          <div className="flex items-start space-x-3 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 flex space-x-2">
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Write a comment..."
+                disabled={loading || !userId}
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={1}
+              />
+              <button
+                onClick={handleComment}
+                disabled={!commentText.trim() || loading || !userId}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Comments List */}
+          <div className="space-y-3">
+            {comments.map((comment) => (
+              <div key={comment.id} className="flex items-start space-x-3 bg-white rounded-lg p-3 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  {comment.user?.image ? (
+                    <Image
+                      src={comment.user.image}
+                      alt={comment.user.name || "User"}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <p className="text-sm font-medium text-gray-800">
+                      {comment.user?.name || "Anonymous"}
+                    </p>
+                    <span className="text-xs text-gray-500">
+                      {new Date(comment.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 break-words">
+                    {comment.content}
+                  </p>
+                </div>
+              </div>
+            ))}
+            
+            {comments.length === 0 && (
+              <p className="text-center text-gray-500 text-sm py-4">
+                No comments yet. Be the first to comment!
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -221,7 +426,12 @@ const PostCard = async ({
       </div>
 
       {/* Post Footer with Actions */}
-      <PostActions postId={post.id} userId={user?.id ?? ""} />
+      <PostActions 
+        postId={post.id} 
+        userId={user?.id ?? ""} 
+        initialLikes={post.likes || []}
+        initialComments={post.comments || []}
+      />
     </article>
   );
 };
