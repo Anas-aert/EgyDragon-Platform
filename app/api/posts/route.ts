@@ -6,9 +6,15 @@ import postSchema from "./schema";
 export async function GET() {
   const posts = await prisma.post.findMany({
     include: {
-      author: true,
-      likes: { include: { user: { select: { name: true, image: true } } } },
-      comments: { include: { user: { select: { name: true, image: true } } } },
+      author: {
+        select: { id: true, name: true, email: true, image: true },
+      },
+      likes: true,
+      comments: {
+        include: {
+          user: { select: { id: true, name: true, image: true } },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -22,7 +28,10 @@ export async function GET() {
     createdAt: post.createdAt.toISOString(),
     updatedAt: post.updatedAt.toISOString(),
     likes: post.likes.map((like) => ({ ...like })),
-    comments: post.comments.map((c) => ({ ...c, createdAt: c.createdAt.toISOString() })),
+    comments: post.comments.map((c) => ({
+      ...c,
+      createdAt: c.createdAt.toISOString(),
+    })),
   }));
 
   return NextResponse.json(safePosts, { status: 200 });
@@ -35,7 +44,10 @@ export async function POST(request: NextRequest) {
     const postValidation = postSchema.safeParse(body);
 
     if (!postValidation.success) {
-      return NextResponse.json({ error: postValidation.error.issues[0].message }, { status: 400 });
+      return NextResponse.json(
+        { error: postValidation.error.issues[0].message },
+        { status: 400 }
+      );
     }
 
     const newPost = await prisma.post.create({
@@ -43,18 +55,29 @@ export async function POST(request: NextRequest) {
       include: {
         author: true,
         likes: { include: { user: { select: { name: true, image: true } } } },
-        comments: { include: { user: { select: { name: true, image: true } } } },
+        comments: {
+          include: { user: { select: { name: true, image: true } } },
+        },
       },
     });
 
-    return NextResponse.json({
-      ...newPost,
-      createdAt: newPost.createdAt.toISOString(),
-      updatedAt: newPost.updatedAt.toISOString(),
-      comments: newPost.comments.map((c) => ({ ...c, createdAt: c.createdAt.toISOString() })),
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        ...newPost,
+        createdAt: newPost.createdAt.toISOString(),
+        updatedAt: newPost.updatedAt.toISOString(),
+        comments: newPost.comments.map((c) => ({
+          ...c,
+          createdAt: c.createdAt.toISOString(),
+        })),
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    return NextResponse.json({ message: "Something went wrong", error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Something went wrong", error },
+      { status: 500 }
+    );
   }
 }
 
@@ -64,7 +87,10 @@ export async function DELETE(request: NextRequest) {
     const body = await request.json();
 
     if (!body.id) {
-      return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Post ID is required" },
+        { status: 400 }
+      );
     }
 
     const existing = await prisma.post.findUnique({ where: { id: body.id } });
@@ -77,6 +103,9 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ deleted: deletedPost }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Failed to delete post", error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to delete post", error },
+      { status: 500 }
+    );
   }
 }
