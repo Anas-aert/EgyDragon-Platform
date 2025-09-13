@@ -9,7 +9,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
     if (!userId || !content)
-      return NextResponse.json({ error: "User ID and content required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID and content required" },
+        { status: 400 }
+      );
 
     const comment = await prisma.comment.create({
       data: { postId, userId, content },
@@ -22,7 +25,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to add comment" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to add comment" },
+      { status: 500 }
+    );
   }
 }
 
@@ -44,6 +50,9 @@ export async function GET(request: NextRequest) {
     );
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch comments" },
+      { status: 500 }
+    );
   }
 }

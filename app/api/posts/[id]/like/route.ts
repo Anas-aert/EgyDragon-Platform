@@ -5,6 +5,8 @@ export async function POST(request: NextRequest) {
   try {
     const { postId, userId } = await request.json();
 
+    console.log("POST LIKE PAYLOAD:", { postId, userId });
+    
     if (!postId)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
@@ -17,7 +19,9 @@ export async function POST(request: NextRequest) {
 
     let liked;
     if (existingLike) {
-      await prisma.like.delete({ where: { userId_postId: { userId, postId } } });
+      await prisma.like.delete({
+        where: { userId_postId: { userId, postId } },
+      });
       liked = false;
     } else {
       await prisma.like.create({ data: { userId, postId } });
@@ -29,7 +33,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, liked, likesCount });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to toggle like" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to toggle like" },
+      { status: 500 }
+    );
   }
 }
 
@@ -48,7 +55,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(likes);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch likes" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch likes" },
+      { status: 500 }
+    );
   }
 }
-

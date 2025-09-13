@@ -22,8 +22,8 @@ type PostFromAPI = {
 };
 
 async function fetchPosts(): Promise<PostFromAPI[]> {
-  return await fetch("https://egydragon-anas.vercel.app/api/posts").then((res) =>
-    res.json()
+  return await fetch("https://egydragon-anas.vercel.app/api/posts").then(
+    (res) => res.json()
   );
 }
 
