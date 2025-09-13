@@ -1,62 +1,108 @@
 "use client";
 
-import { Heart, MessageCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { prisma } from "@/prisma/client";
+import { Post } from "@prisma/client";
+import {
+  FileText,
+  AlertCircle,
+  Calendar,
+  Heart,
+  MessageCircle,
+  Eye,
+  User,
+} from "lucide-react";
+import Image from "next/image";
+import { Suspense, useState } from "react";
 
-export default function PostActions({
-  postId,
-  initialLikes,
-  initialComments,
+// 👇 تعريف نوع خاص للبوست اللي جاي من API
+type PostFromAPI = Omit<Post, "createdAt" | "updatedAt"> & {
+  createdAt: string;
+  updatedAt: string;
+};
+
+async function getUser(userId: string) {
+  return await prisma.user.findUnique({
+    where: { id: userId },
+  });
+}
+
+// 🔹 Loading skeleton component
+const PostSkeleton = () => (
+  <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden animate-pulse">
+    <div className="px-8 pt-6 pb-4 border-b border-gray-100">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          <div>
+            <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-16"></div>
+          </div>
+        </div>
+      </div>
+      <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+    </div>
+    <div className="px-8 py-6">
+      <div className="space-y-2">
+        <div className="h-4 bg-gray-200 rounded"></div>
+        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+        <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+      </div>
+    </div>
+  </div>
+);
+
+// 🔹 Error boundary component
+const ErrorDisplay = ({
+  type,
+  title,
+  message,
 }: {
-  postId: string;
-  initialLikes: any[];
-  initialComments: any[];
-}) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(initialLikes.length);
-  const [comments, setComments] = useState(initialComments);
-  const [commentText, setCommentText] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
+  type: "loading" | "data" | "empty";
+  title: string;
+  message: string;
+}) => {
+  const gradients = {
+    loading: "from-red-50 to-red-100",
+    data: "from-yellow-50 to-orange-100",
+    empty: "from-blue-50 to-indigo-100",
+  };
 
-  useEffect(() => {
-    // Get userId from session, localStorage, or authentication context
-    // This is just an example - adjust based on your auth implementation
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
-    
-    if (initialLikes.some((like) => like.userId === storedUserId)) {
-      setLiked(true);
-    }
-  }, [initialLikes]);
+  const colors = {
+    loading: "text-red-500",
+    data: "text-orange-500",
+    empty: "text-blue-600",
+  };
+
+  return (
+    <div
+      className={`min-h-screen bg-gradient-to-br ${gradients[type]} flex items-center justify-center`}
+    >
+      <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4">
+        <AlertCircle className={`w-16 h-16 ${colors[type]} mx-auto mb-4`} />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{title}</h2>
+        <p className="text-gray-600">{message}</p>
+      </div>
+    </div>
+  );
+};
+
+// 🔹 Post Actions (Like & Comment)
+function PostActions({ postId, userId }: { postId: string; userId: string }) {
+  const [liked, setLiked] = useState(false);
+  const [comments, setComments] = useState<any[]>([]);
+  const [commentText, setCommentText] = useState("");
 
   const handleLike = async () => {
-    if (!userId) {
-      // Handle case where user is not authenticated
-      console.error("User not authenticated");
-      return;
-    }
-    
     const res = await fetch(`/api/posts/${postId}/like`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
     });
     const data = await res.json();
-    if (data.success) {
-      setLiked(data.liked);
-      setLikeCount((prev) => (data.liked ? prev + 1 : prev - 1));
-    }
+    if (data.success) setLiked(data.liked);
   };
 
   const handleComment = async () => {
-    if (!userId) {
-      // Handle case where user is not authenticated
-      console.error("User not authenticated");
-      return;
-    }
-    
     if (!commentText.trim()) return;
     const res = await fetch(`/api/posts/${postId}/comment`, {
       method: "POST",
@@ -71,41 +117,257 @@ export default function PostActions({
   };
 
   return (
-    <div className="mt-4 pt-4 border-t border-gray-200">
-      {/* Like + Comment input */}
+    <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100">
       <div className="flex items-center space-x-6">
         <button
           onClick={handleLike}
-          className={`flex items-center space-x-2 transition-colors ${
+          className={`flex items-center space-x-2 transition-colors duration-200 ${
             liked ? "text-red-500" : "text-gray-500 hover:text-red-500"
           }`}
         >
           <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
-          <span className="text-sm font-medium">{likeCount} Likes</span>
+          <span className="text-sm font-medium">{liked ? "Liked" : "Like"}</span>
         </button>
 
-        <div className="flex items-center space-x-2 flex-1">
+        <div className="flex items-center space-x-2">
           <MessageCircle className="w-5 h-5 text-gray-500" />
           <input
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Write a comment..."
-            className="border rounded px-2 py-1 text-sm w-full"
+            className="border rounded px-2 py-1 text-sm"
           />
-          <button onClick={handleComment} className="text-blue-600 text-sm font-medium">
+          <button
+            onClick={handleComment}
+            className="text-blue-600 text-sm font-medium"
+          >
             Send
           </button>
         </div>
       </div>
 
-      {/* Comments */}
+      {/* Show comments */}
       <div className="mt-3 space-y-2">
-        {comments.map((c: any) => (
+        {comments.map((c) => (
           <p key={c.id} className="text-sm text-gray-700 border-l-2 border-gray-300 pl-2">
             {c.content}
           </p>
         ))}
       </div>
     </div>
+  );
+}
+
+// 🔹 Optimized Post component
+const PostCard = async ({
+  post,
+  index,
+}: {
+  post: PostFromAPI;
+  index: number;
+}) => {
+  const user = await getUser(post.authorId);
+
+  return (
+    <article
+      className="group bg-white/70 backdrop-blur-sm rounded-2xl mb-5 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20 overflow-hidden animate-fade-in-up will-change-transform"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      {/* Post Header */}
+      <div className="px-8 pt-6 pb-4 border-b border-gray-100">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+              {user?.image ? (
+                <Image
+                  src={user.image}
+                  alt={user.name ?? "User"}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full"
+                />
+              ) : (
+                <User className="w-5 h-5 text-white" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800">
+                {user?.name ?? "Unknown User"}
+              </p>
+              <div className="flex items-center text-sm text-gray-500">
+                <Calendar className="w-3 h-3 mr-1" />
+                <time>
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </time>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+              Article
+            </span>
+          </div>
+        </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors duration-300">
+          {post.title}
+        </h2>
+      </div>
+
+      {/* Post Content */}
+      <div className="px-8 py-6">
+        <div className="text-gray-700 text-lg leading-relaxed break-words line-clamp-text">
+          {post.content}
+        </div>
+      </div>
+
+      {/* Post Footer with Actions */}
+      <PostActions postId={post.id} userId={user?.id ?? ""} />
+    </article>
+  );
+};
+
+// 🔹 Fetch posts with proper typing
+async function fetchPosts(): Promise<PostFromAPI[]> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const res = await fetch("https://egydragon-anas.vercel.app/api/posts", {
+      cache: "no-store",
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const posts: PostFromAPI[] = await res.json();
+
+    if (!Array.isArray(posts)) {
+      throw new Error("Invalid response format: expected array");
+    }
+
+    return posts;
+  } catch (error) {
+    console.error("Failed to fetch posts:", error);
+    throw error;
+  }
+}
+
+export default async function Home() {
+  let posts: PostFromAPI[] = [];
+  let error: string | null = null;
+
+  try {
+    posts = await fetchPosts();
+  } catch (err) {
+    error = err instanceof Error ? err.message : "Unknown error occurred";
+  }
+
+  // Handle errors
+  if (error) {
+    if (error.includes("HTTP error") || error.includes("aborted")) {
+      return (
+        <ErrorDisplay
+          type="loading"
+          title="Loading Error"
+          message="Failed to load posts"
+        />
+      );
+    }
+    return (
+      <ErrorDisplay
+        type="data"
+        title="Data Error"
+        message="Invalid response format 🚨"
+      />
+    );
+  }
+
+  // Handle empty state
+  if (posts.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center p-12 bg-white rounded-3xl shadow-2xl max-w-lg mx-4 transform hover:scale-105 transition-transform duration-300">
+          <div className="relative mb-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full mx-auto flex items-center justify-center animate-pulse">
+              <FileText className="w-12 h-12 text-white" />
+            </div>
+            <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full animate-bounce"></div>
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            No Posts Found
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Start by creating your first post!
+          </p>
+          <div
+            className="mt-8 flex justify-center space-x-2"
+            role="status"
+            aria-label="Loading"
+          >
+            {[0, 0.2, 0.4].map((delay, i) => (
+              <div
+                key={i}
+                className={`w-3 h-3 bg-${
+                  ["blue", "purple", "pink"][i]
+                }-400 rounded-full animate-bounce`}
+                style={{ animationDelay: `${delay}s` }}
+              ></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Header Section */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-6 max-w-6xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <FileText className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  Blog Posts
+                </h1>
+                <p className="text-sm text-gray-500" role="status">
+                  {posts.length} posts available
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <Eye className="w-4 h-4" />
+              <span>Latest Posts</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Posts Container */}
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div
+          className="space-y-8 flex flex-col-reverse"
+          role="feed"
+          aria-label="Blog posts"
+        >
+          <Suspense fallback={<PostSkeleton />}>
+            {posts.map((post, index) => (
+              <PostCard key={post.id || index} post={post} index={index} />
+            ))}
+          </Suspense>
+        </div>
+      </div>
+    </main>
   );
 }
