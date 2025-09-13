@@ -4,13 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 // ✅ Add Comment
 export async function POST(request: NextRequest) {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split("/")[4]; // posts/[id]/comment → index 4
+
+    const { id, userId, content } = await request.json();
 
     if (!id)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
-    const { userId, content } = await request.json();
     if (!userId || !content)
       return NextResponse.json(
         { error: "User ID and content required" },
@@ -38,14 +37,13 @@ export async function POST(request: NextRequest) {
 // ✅ Get Comments
 export async function GET(request: NextRequest) {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split("/")[4];
+    const body = await request.json();
 
-    if (!id)
+    if (!body.id)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
     const comments = await prisma.comment.findMany({
-      where: { postId: id },
+      where: { postId: body.id },
       include: {
         user: { select: { id: true, name: true, image: true } },
       },

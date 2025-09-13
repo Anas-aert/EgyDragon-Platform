@@ -4,21 +4,26 @@ import { NextRequest, NextResponse } from "next/server";
 // ✅ Add/Remove Like
 export async function POST(request: NextRequest) {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split("/")[4]; // posts/[id]/like → index 4
+    const { id } = await request.json();
 
-    if (!id) return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
+    if (!id)
+      return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
     const { userId } = await request.json();
-    if (!userId) return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    if (!userId)
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
 
     // تحقق إذا المستخدم عمل لايك مسبقاً
-    const existingLike = await prisma.like.findUnique({ where: { userId_postId: { userId, postId: id } } });
+    const existingLike = await prisma.like.findUnique({
+      where: { userId_postId: { userId, postId: id } },
+    });
 
     let liked;
     if (existingLike) {
       // إزالة اللايك
-      await prisma.like.delete({ where: { userId_postId: { userId, postId: id } } });
+      await prisma.like.delete({
+        where: { userId_postId: { userId, postId: id } },
+      });
       liked = false;
     } else {
       // إضافة لايك
@@ -32,17 +37,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, liked, likesCount });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to toggle like" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to toggle like" },
+      { status: 500 }
+    );
   }
 }
 
 // ✅ Get Likes
 export async function GET(request: NextRequest) {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split("/")[4];
+    const { id } = await request.json();
 
-    if (!id) return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
+    if (!id)
+      return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
     const likes = await prisma.like.findMany({
       where: { postId: id },
@@ -52,6 +60,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(likes);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch likes" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch likes" },
+      { status: 500 }
+    );
   }
 }

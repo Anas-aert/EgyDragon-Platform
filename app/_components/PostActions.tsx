@@ -49,7 +49,7 @@ export default function PostActions({
       const res = await fetch(`/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ postId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -71,7 +71,7 @@ export default function PostActions({
       const res = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, content: commentText.trim() }),
+        body: JSON.stringify({ postId, userId, content: commentText.trim() }),
       });
       const data = await res.json();
       if (data.success && data.comment) {
