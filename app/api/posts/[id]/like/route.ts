@@ -1,16 +1,16 @@
 import { prisma } from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-
 // 🔹 Get Likes Count + List of users
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const likes = await prisma.like.findMany({
-      where: { postId: params.id },
-      include: { user: true }, // assuming Like has relation → user
+      where: { postId: resolvedParams.id },
+      include: { user: true },
     });
 
     return NextResponse.json({
@@ -29,9 +29,10 @@ export async function GET(
 // ✅ Toggle Like
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { userId } = await request.json();
 
     if (!userId) {
@@ -39,7 +40,7 @@ export async function POST(
     }
 
     const existing = await prisma.like.findFirst({
-      where: { postId: params.id, userId },
+      where: { postId: resolvedParams.id, userId },
     });
 
     if (existing) {
@@ -48,7 +49,7 @@ export async function POST(
     }
 
     await prisma.like.create({
-      data: { postId: params.id, userId },
+      data: { postId: resolvedParams.id, userId },
     });
 
     return NextResponse.json({ success: true, liked: true });
