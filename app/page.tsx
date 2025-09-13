@@ -22,7 +22,9 @@ type PostFromAPI = {
 };
 
 async function fetchPosts(): Promise<PostFromAPI[]> {
-  return await fetch("https://egydragon-anas.vercel.app/api/posts").then((res) => res.json());
+  return await fetch("https://egydragon-anas.vercel.app/api/posts").then((res) =>
+    res.json()
+  );
 }
 
 async function getUser(userId: string) {
@@ -32,13 +34,26 @@ async function getUser(userId: string) {
 export default async function Home() {
   const posts = await fetchPosts();
 
+  const postsWithUsers = await Promise.all(
+    posts.map(async (post) => {
+      const user = await getUser(post.authorId);
+      return {
+        post,
+        user: {
+          id: user?.id ?? "",
+          name: user?.name ?? "مستخدم مجهول",
+          image: user?.image ?? undefined,
+        },
+      };
+    })
+  );
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
       <div className="max-w-4xl mx-auto flex flex-col-reverse space-y-8">
-        {posts.map(async (post) => {
-          const user = await getUser(post.authorId);
-          return <PostCard key={post.id} post={post} user={{ id: user?.id ?? "", name: user?.name, image: user?.image }} />;
-        })}
+        {postsWithUsers.map(({ post, user }) => (
+          <PostCard key={post.id} post={post} user={user} />
+        ))}
       </div>
     </main>
   );
