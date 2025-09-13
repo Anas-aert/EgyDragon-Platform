@@ -43,7 +43,7 @@ export default function PostActions({
   }, [initialLikes, userId]);
 
   const handleLike = async () => {
-    if (loading || !userId) return alert("يجب تسجيل الدخول أولاً");
+    if (loading || !userId) return alert("You should be Signedin");
     setLoading(true);
     try {
       const res = await fetch(`/api/posts/${postId}/like`, {
@@ -64,7 +64,7 @@ export default function PostActions({
   };
 
   const handleComment = async () => {
-    if (!userId) return alert("يجب تسجيل الدخول أولاً");
+    if (!userId) return alert("You should be Signedin");
     if (!commentText.trim() || loading) return;
     setLoading(true);
     try {
@@ -101,7 +101,7 @@ export default function PostActions({
             <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
             <span className="text-sm font-medium">
               {likesCount > 0 && <span className="mr-1">({likesCount})</span>}
-              {liked ? "تم الإعجاب" : "أعجبني"}
+              {liked ? "liked" : "like"}
             </span>
           </button>
           <button
@@ -115,7 +115,7 @@ export default function PostActions({
               {comments.length > 0 && (
                 <span className="mr-1">({comments.length})</span>
               )}
-              التعليقات
+              comments
             </span>
           </button>
         </div>
@@ -133,7 +133,7 @@ export default function PostActions({
                 <textarea
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="اكتب تعليقك..."
+                  placeholder="write comment ..."
                   disabled={loading}
                   className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"
                   rows={1}
@@ -149,7 +149,7 @@ export default function PostActions({
             </div>
           ) : (
             <p className="text-center text-gray-500">
-              يجب تسجيل الدخول أولاً لإضافة تعليق
+              You should be Signedin
             </p>
           )}
 
@@ -163,7 +163,7 @@ export default function PostActions({
                   {c.user?.image ? (
                     <Image
                       src={c.user.image}
-                      alt={c.user?.name || "مجهول"}
+                      alt={c.user?.name || "Undefined"}
                       width={32}
                       height={32}
                       className="object-cover"
@@ -176,7 +176,7 @@ export default function PostActions({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
                     <p className="text-sm font-medium">
-                      {c.user?.name || "مستخدم مجهول"}
+                      {c.user?.name || "Undefined user"}
                     </p>
                     <span className="text-xs text-gray-500">
                       {new Date(c.createdAt).toLocaleDateString()}
