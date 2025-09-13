@@ -6,22 +6,25 @@ import {
   Calendar,
   Heart,
   MessageCircle,
-  Share2,
   Eye,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import { Suspense } from "react";
 
-async function getUser(userId) {
-  const uname = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
+// 👇 تعريف نوع خاص للبوست اللي جاي من API
+type PostFromAPI = Omit<Post, "createdAt" | "updatedAt"> & {
+  createdAt: string;
+  updatedAt: string;
+};
+
+async function getUser(userId: string) {
+  return await prisma.user.findUnique({
+    where: { id: userId },
   });
-  return uname;
 }
 
-// Loading skeleton component for better UX
+// 🔹 Loading skeleton component
 const PostSkeleton = () => (
   <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden animate-pulse">
     <div className="px-8 pt-6 pb-4 border-b border-gray-100">
@@ -46,7 +49,7 @@ const PostSkeleton = () => (
   </div>
 );
 
-// Error boundary component
+// 🔹 Error boundary component
 const ErrorDisplay = ({
   type,
   title,
@@ -81,8 +84,14 @@ const ErrorDisplay = ({
   );
 };
 
-// Optimized Post component
-const PostCard = async ({ post, index }: { post: Post; index: number }) => {
+// 🔹 Optimized Post component
+const PostCard = async ({
+  post,
+  index,
+}: {
+  post: PostFromAPI;
+  index: number;
+}) => {
   const user = await getUser(post.authorId);
 
   return (
@@ -95,7 +104,17 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-              <Image src={user.image} alt="User Image" width={200} height={100} className="w-10 h-10 rounded-full text-white" />
+              {user?.image ? (
+                <Image
+                  src={user.image}
+                  alt={user.name ?? "User"}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full"
+                />
+              ) : (
+                <User className="w-5 h-5 text-white" />
+              )}
             </div>
             <div>
               <p className="font-semibold text-gray-800">
@@ -103,7 +122,9 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
               </p>
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="w-3 h-3 mr-1" />
-                <time>{new Date(post.createdAt).toLocaleDateString()}</time>
+                <time>
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </time>
               </div>
             </div>
           </div>
@@ -137,10 +158,6 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
               <MessageCircle className="w-5 h-5" />
               <span className="text-sm font-medium">Comment</span>
             </button>
-            <button className="flex items-center cursor-pointer space-x-2 text-gray-500 hover:text-green-500 transition-colors duration-200">
-              <Share2 className="w-5 h-5" />
-              <span className="text-sm font-medium">Share</span>
-            </button>
           </div>
           <div className="text-xs text-gray-400">Post #{index + 1}</div>
         </div>
@@ -149,12 +166,11 @@ const PostCard = async ({ post, index }: { post: Post; index: number }) => {
   );
 };
 
-
-// Fetch posts with improved error handling
-async function fetchPosts(): Promise<Post[]> {
+// 🔹 Fetch posts with proper typing
+async function fetchPosts(): Promise<PostFromAPI[]> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const res = await fetch("https://egydragon-anas.vercel.app/api/posts", {
       cache: "no-store",
@@ -163,7 +179,6 @@ async function fetchPosts(): Promise<Post[]> {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      
     });
 
     clearTimeout(timeoutId);
@@ -172,8 +187,7 @@ async function fetchPosts(): Promise<Post[]> {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    const posts = await res.json();
-    
+    const posts: PostFromAPI[] = await res.json();
 
     if (!Array.isArray(posts)) {
       throw new Error("Invalid response format: expected array");
@@ -187,7 +201,7 @@ async function fetchPosts(): Promise<Post[]> {
 }
 
 export default async function Home() {
-  let posts: Post[] = [];
+  let posts: PostFromAPI[] = [];
   let error: string | null = null;
 
   try {
