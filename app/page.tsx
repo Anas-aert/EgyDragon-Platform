@@ -5,12 +5,10 @@ import { useState, useEffect } from "react";
 
 export default function PostActions({
   postId,
-  userId,
   initialLikes,
   initialComments,
 }: {
   postId: string;
-  userId: string;
   initialLikes: any[];
   initialComments: any[];
 }) {
@@ -18,14 +16,28 @@ export default function PostActions({
   const [likeCount, setLikeCount] = useState(initialLikes.length);
   const [comments, setComments] = useState(initialComments);
   const [commentText, setCommentText] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (initialLikes.some((like) => like.userId === userId)) {
+    // Get userId from session, localStorage, or authentication context
+    // This is just an example - adjust based on your auth implementation
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+    
+    if (initialLikes.some((like) => like.userId === storedUserId)) {
       setLiked(true);
     }
-  }, [initialLikes, userId]);
+  }, [initialLikes]);
 
   const handleLike = async () => {
+    if (!userId) {
+      // Handle case where user is not authenticated
+      console.error("User not authenticated");
+      return;
+    }
+    
     const res = await fetch(`/api/posts/${postId}/like`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -39,6 +51,12 @@ export default function PostActions({
   };
 
   const handleComment = async () => {
+    if (!userId) {
+      // Handle case where user is not authenticated
+      console.error("User not authenticated");
+      return;
+    }
+    
     if (!commentText.trim()) return;
     const res = await fetch(`/api/posts/${postId}/comment`, {
       method: "POST",
