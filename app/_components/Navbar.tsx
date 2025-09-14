@@ -110,7 +110,7 @@ export default function NavBar() {
                 onClick={() => setOpen(!open)}
               >
                 <Image
-                  src={user.image || "/default-avatar.png"}
+                  src={user.image ? user.image : "/default-avatar.png"}
                   width={40}
                   height={40}
                   alt="Profile"
