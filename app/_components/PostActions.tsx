@@ -9,7 +9,7 @@ type Comment = {
   id: string;
   content: string;
   userId: string;
-  user: { name: string; image?: string };
+  user?: { name?: string; image?: string };
   createdAt: string;
 };
 
@@ -22,34 +22,31 @@ export default function PostActions({
   initialLikes: Array<{
     id: string;
     userId: string;
-    user: { name: string; image?: string };
+    user?: { name?: string; image?: string };
   }>;
   initialComments: Comment[];
 }) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes.length);
-  const [likesUsers] = useState(
-    initialLikes.map((like) => like.user)
-  );
+  const [likesUsers] = useState(initialLikes.map((like) => like.user));
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
 
-  const { data: session, status } = useSession();
-  
+  const { data, status } = useSession();
+
   // Get user info from session
-  const userId = (session?.user)?.id;
-  const userName = session?.user?.name;
-  const userImage = session?.user?.image;
+  const userId = data?.user?.id as string | undefined;
+  const userName = data?.user?.name;
+  const userImage = data?.user?.image;
 
   useEffect(() => {
     if (!userId || status !== "authenticated") {
       setLiked(false);
       return;
     }
-    // Check if current user liked the post
     setLiked(initialLikes.some((like) => like.userId === userId));
   }, [initialLikes, userId, status]);
 
@@ -58,21 +55,21 @@ export default function PostActions({
       alert("You should be signed in");
       return;
     }
-    
+
     setLoading(true);
     try {
-      const res = await fetch(`https://egydragon-anas.vercel.app/api/posts/${postId}/like`, {
+      const res = await fetch(`/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        cache: "no-store"
+        cache: "no-store",
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || "Failed to like post");
       }
-      
+
       if (data.success) {
         setLiked(data.liked);
         setLikesCount(data.liked ? likesCount + 1 : likesCount - 1);
@@ -90,24 +87,24 @@ export default function PostActions({
       alert("You should be signed in");
       return;
     }
-    
+
     if (!commentText.trim() || commentLoading) return;
-    
+
     setCommentLoading(true);
     try {
-      const res = await fetch(`https://egydragon-anas.vercel.app/api/posts/${postId}/comment`, {
+      const res = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: commentText.trim() }),
-        cache: "no-store"
+        cache: "no-store",
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.message || "Failed to add comment");
       }
-      
+
       if (data.success && data.comment) {
         setComments([...comments, data.comment]);
         setCommentText("");
@@ -122,7 +119,7 @@ export default function PostActions({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleComment();
     }
@@ -143,14 +140,18 @@ export default function PostActions({
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Heart className={`w-5 h-5 transition-all duration-200 ${liked ? "fill-current scale-110" : ""}`} />
+              <Heart
+                className={`w-5 h-5 transition-all duration-200 ${
+                  liked ? "fill-current scale-110" : ""
+                }`}
+              />
             )}
             <span className="text-sm font-medium">
               {likesCount > 0 && <span className="mr-1">({likesCount})</span>}
               {liked ? "Liked" : "Like"}
             </span>
           </button>
-          
+
           <button
             onClick={() => setShowComments(!showComments)}
             className="flex cursor-pointer items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200"
@@ -176,7 +177,7 @@ export default function PostActions({
                   className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
                   title={user?.name || "User"}
                 >
-                  {user.image ? (
+                  {user?.image ? (
                     <Image
                       src={user?.image || "/default-avatar.png"}
                       alt={user?.name || "User"}
@@ -209,7 +210,7 @@ export default function PostActions({
               <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
                 {userImage ? (
                   <Image
-                    src={userImage || "/default-avatar.png"}
+                    src={userImage}
                     alt={userName || "User"}
                     width={32}
                     height={32}
@@ -244,9 +245,11 @@ export default function PostActions({
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-gray-500 mb-2">You should be signed in to comment</p>
-              <button 
-                onClick={() => window.location.href = '/auth/MainAuth'}
+              <p className="text-gray-500 mb-2">
+                You should be signed in to comment
+              </p>
+              <button
+                onClick={() => (window.location.href = "/auth/MainAuth")}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
                 Sign In
@@ -256,7 +259,9 @@ export default function PostActions({
 
           <div className="space-y-3">
             {comments.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No comments yet. Be the first to comment!</p>
+              <p className="text-center text-gray-500 py-8">
+                No comments yet. Be the first to comment!
+              </p>
             ) : (
               comments.map((c) => (
                 <div
@@ -283,16 +288,18 @@ export default function PostActions({
                         {c.user?.name || "Unknown user"}
                       </p>
                       <span className="text-xs text-gray-500">
-                        {new Date(c.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                        {new Date(c.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">{c.content}</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {c.content}
+                    </p>
                   </div>
                 </div>
               ))
