@@ -3,17 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import {
-  Menu,
-  X,
-  Home,
-  Users,
-  Info,
-  User,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 interface User {
@@ -22,53 +12,31 @@ interface User {
   name?: string;
 }
 
-export default function NavBar() {
-  const { data, status } = useSession();
+interface NavbarProps {
+  status: "authenticated" | "unauthenticated" | "loading";
+  user?: User | null;
+  signOut: () => void;
+}
+
+function Navvbar({ status, user, signOut }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const pathname = usePathname();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const userButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const user = data?.user;
-
-  // links
-  const navLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/users", label: "Users", icon: Users },
-    { href: "/about", label: "About", icon: Info },
-  ];
-
-  const isActiveLink = (href: string) => pathname === href;
-
-  // close dropdown on outside click
+  // يقفل المنيو لو ضغط بره
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node) &&
-        userButtonRef.current &&
-        !userButtonRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
 
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
-
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [open]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -79,34 +47,14 @@ export default function NavBar() {
         </Link>
 
         {/* Links */}
-        <div className="hidden md:flex space-x-6">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = isActiveLink(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-                  isActive
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                }`}
-              >
-                <Icon size={18} />
-                <span className="font-medium">{link.label}</span>
-              </Link>
-            );
-          })}
-        </div>
+        <div className="hidden md:flex space-x-6">{/* روابط أخرى */}</div>
 
-        {/* User Section */}
+        {/* User Section / Sign In */}
         <div className="md:block">
           {status === "authenticated" && user ? (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
-                ref={userButtonRef}
-                className="flex items-center space-x-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg p-1"
+                className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => setOpen(!open)}
               >
                 <Image
@@ -123,57 +71,55 @@ export default function NavBar() {
               </button>
 
               {open && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute right-0 translate-y-1 w-48 bg-white rounded-md shadow-lg py-2 border border-gray-200"
-                >
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
                   <Link
                     href="/profile"
-                    className="flex items-center space-x-2 px-4 py-2 text-black hover:bg-gray-100"
-                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
                   >
-                    <User size={16} />
-                    <span>Profile</span>
+                    Profile
                   </Link>
                   <Link
                     href="/settings"
-                    className="flex items-center space-x-2 px-4 py-2 text-black hover:bg-gray-100"
-                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
                   >
-                    <Settings size={16} />
-                    <span>Settings</span>
+                    Settings
                   </Link>
                   <button
-                    onClick={() => {
-                      signOut();
-                      setOpen(false);
-                    }}
-                    className="flex items-center space-x-2 w-full text-left px-4 py-2 text-black hover:bg-red-50 hover:text-red-600"
+                    onClick={() => signOut()}
+                    className="w-full text-left px-4 py-2 text-black hover:bg-red-600 cursor-pointer hover:text-white"
                   >
-                    <LogOut size={16} />
-                    <span>Sign out</span>
+                    Sign out
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <Link
-              href="/auth/MainAuth"
-              className="hover:scale-110 bg-blue-600 transition-all duration-700 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Sign In
-            </Link>
+            <div className="hover:scale-110 bg-blue-600 transition-all duration-700 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              <Link href="/auth/MainAuth">Sign In</Link>
+            </div>
           )}
         </div>
 
         {/* Hamburger (mobile) */}
         <button
-          className="md:hidden p-2 cursor-pointer text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded"
+          className="md:hidden p-2 cursor-pointer text-black"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
+          {/* روابط الموبايل */}
+        </div>
+      )}
     </nav>
   );
+}
+
+export default function NavBar() {
+  const { data, status } = useSession();
+  return <Navvbar user={data?.user} status={status} signOut={signOut} />;
 }
