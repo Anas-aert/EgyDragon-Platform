@@ -200,7 +200,7 @@ export default function NavBar() {
             })}
 
             {/* User Section (mobile) */}
-            {status === "authenticated" && user ? (
+            {/* {status === "authenticated" && user ? (
               <>
                 <Link
                   href="/profile"
@@ -237,7 +237,7 @@ export default function NavBar() {
               >
                 Sign In
               </Link>
-            )}
+            )} */}
           </div>
         </div>
       )}
