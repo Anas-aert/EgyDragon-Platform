@@ -1,11 +1,10 @@
 import { prisma } from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-// ✅ GET single Post
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
-    const id = url.pathname.split("/").pop();
+    const id = url.pathname.split("/").filter(Boolean).pop();
 
     if (!id)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
@@ -13,14 +12,10 @@ export async function GET(request: NextRequest) {
     const post = await prisma.post.findUnique({
       where: { id },
       include: {
-        author: {
-          select: { id: true, name: true, email: true, image: true },
-        },
+        author: { select: { id: true, name: true, email: true, image: true } },
         likes: true,
         comments: {
-          include: {
-            user: { select: { id: true, name: true, image: true } },
-          },
+          include: { user: { select: { id: true, name: true, image: true } } },
         },
       },
     });
