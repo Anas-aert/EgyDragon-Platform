@@ -6,7 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
-    const postId = url.pathname.split("/").filter(Boolean).pop();
+    const postId = url.pathname.split("/")[6];
+    console.log(postId)
 
     if (!postId)
       return NextResponse.json(
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     const url = new URL(request.url);
-    const postId = url.pathname.split("/").filter(Boolean).pop();
+    const postId = url.pathname.split("/")[6];
 
     if (!postId)
       return NextResponse.json(
