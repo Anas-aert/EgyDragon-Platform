@@ -16,13 +16,20 @@ export async function POST(request: NextRequest) {
 
     const comment = await prisma.comment.create({
       data: { postId, userId, content },
-      include: { user: true },
+      include: { user: { select: { id: true, name: true, image: true } } },
     });
 
     return NextResponse.json({
       success: true,
-      comment: { ...comment, createdAt: comment.createdAt.toISOString() },
+      comment: {
+        id: comment.id,
+        content: comment.content,
+        userId: comment.userId,
+        createdAt: comment.createdAt.toISOString(),
+        user: comment.user, // ✅ هنا بيتضمن الـ {id, name, image}
+      },
     });
+
   } catch (err) {
     console.error(err);
     return NextResponse.json(

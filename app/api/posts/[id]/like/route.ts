@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const { postId, userId } = await request.json();
 
     console.log("POST LIKE PAYLOAD:", { postId, userId });
-    
+
     if (!postId)
       return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
 
@@ -16,6 +16,11 @@ export async function POST(request: NextRequest) {
     const existingLike = await prisma.like.findUnique({
       where: { userId_postId: { userId, postId } },
     });
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return NextResponse.json({ error: "Invalid user" }, { status: 400 });
+    }
 
     let liked;
     if (existingLike) {

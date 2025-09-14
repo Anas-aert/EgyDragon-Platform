@@ -39,6 +39,10 @@ export default function PostActions({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!userId) {
+      setLiked(false);
+      return;
+    }
     setLiked(initialLikes.some((like) => like.userId === userId));
   }, [initialLikes, userId]);
 

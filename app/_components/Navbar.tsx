@@ -18,9 +18,7 @@ interface NavbarProps {
   signOut: () => void;
 }
 
-
 function Navvbar({ status, user, signOut }: NavbarProps) {
-  
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -57,7 +55,11 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
         {/* User Section / Sign In */}
         <div className="md:block">
           {status === "authenticated" && user ? (
-            <div className="relative">
+            // The onMouseLeave handler is moved here to wrap both elements
+            <div
+              className="relative"
+              onMouseLeave={() => setOpen(false)}
+            >
               <button
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => setOpen(!open)}
@@ -102,11 +104,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
             </div>
           ) : (
             <div className="hover:scale-110 bg-blue-600 transition-all duration-700 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            <Link
-              href="/auth/MainAuth"
-            >
-              Sign In
-            </Link>
+              <Link href="/auth/MainAuth">Sign In</Link>
             </div>
           )}
         </div>
@@ -123,10 +121,16 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
-          <Link href="/" className="block text-black select-none hover:text-blue-600 active:text-red-500">
+          <Link
+            href="/"
+            className="block text-black select-none hover:text-blue-600 active:text-red-500"
+          >
             Home
           </Link>
-          <Link href="/about" className="block select-none text-black hover:text-blue-600">
+          <Link
+            href="/about"
+            className="block select-none text-black hover:text-blue-600"
+          >
             About
           </Link>
           <Link
@@ -143,8 +147,6 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
 
 export default function NavBar() {
   const { data, status } = useSession();
-  
-  return (
-    <Navvbar user={data?.user} status={status} signOut={signOut}/>
-  )
+
+  return <Navvbar user={data?.user} status={status} signOut={signOut} />;
 }
