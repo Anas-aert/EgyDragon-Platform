@@ -8,7 +8,7 @@ import {
   Menu,
   X,
   Home,
-  Users,
+  Contact,
   Info,
   User,
   Settings,
@@ -36,7 +36,7 @@ export default function NavBar() {
   // links
   const navLinks = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/users", label: "Users", icon: Users },
+    { href: "/contact", label: "Contact", icon: Contact },
     { href: "/about", label: "About", icon: Info },
   ];
 
