@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
@@ -22,6 +22,22 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // يقفل المنيو لو ضغط بره
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -30,25 +46,19 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
           EgyDrag
         </Link>
 
-        {/* Links (hidden on small screens) */}
-        <div className="hidden md:flex space-x-6">
-          {/* ... (باقي الروابط) */}
-        </div>
+        {/* Links */}
+        <div className="hidden md:flex space-x-6">{/* روابط أخرى */}</div>
 
         {/* User Section / Sign In */}
         <div className="md:block">
           {status === "authenticated" && user ? (
-            // onMouseLeave تم نقله هنا ليغطي كلًا من الزر والقائمة
-            <div
-              className="relative"
-              onMouseLeave={() => setOpen(false)}
-            >
+            <div className="relative" ref={dropdownRef}>
               <button
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => setOpen(!open)}
               >
                 <Image
-                  src={user.image}
+                  src={user.image || "/default-avatar.png"}
                   width={40}
                   height={40}
                   alt="Profile"
@@ -75,9 +85,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
                     Settings
                   </Link>
                   <button
-                    onClick={() => {
-                      signOut();
-                    }}
+                    onClick={() => signOut()}
                     className="w-full text-left px-4 py-2 text-black hover:bg-red-600 cursor-pointer hover:text-white"
                   >
                     Sign out
@@ -92,7 +100,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
           )}
         </div>
 
-        {/* Hamburger (only on small screens) */}
+        {/* Hamburger (mobile) */}
         <button
           className="md:hidden p-2 cursor-pointer text-black"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -104,7 +112,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
-          {/* ... (قائمة الموبايل) */}
+          {/* روابط الموبايل */}
         </div>
       )}
     </nav>
@@ -113,6 +121,5 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
 
 export default function NavBar() {
   const { data, status } = useSession();
-
   return <Navvbar user={data?.user} status={status} signOut={signOut} />;
 }

@@ -1,47 +1,45 @@
 import { prisma } from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+// POST /api/posts/:id/like
+export async function POST(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { postId, userId } = await request.json();
+    const { userId } = await req.json();
+    const postId = params.id;
 
-    console.log("POST LIKE PAYLOAD:", { postId, userId });
-
-    if (!postId)
-      return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
-
-    if (!userId)
+    if (!userId) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 });
-
-    const existingLike = await prisma.like.findUnique({
-      where: { userId_postId: { userId, postId } },
-    });
-
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return NextResponse.json({ error: "Invalid user" }, { status: 400 });
     }
 
-    let liked;
-    if (existingLike) {
+    // هل المستخدم عامل لايك قبل كده؟
+    const existing = await prisma.like.findUnique({
+      where: {
+        postId_userId: { postId, userId },
+      },
+    });
+
+    let liked: boolean;
+    if (existing) {
+      // إلغاء اللايك
       await prisma.like.delete({
-        where: { userId_postId: { userId, postId } },
+        where: { id: existing.id },
       });
       liked = false;
     } else {
-      await prisma.like.create({ data: { userId, postId } });
+      // إضافة لايك
+      await prisma.like.create({
+        data: { postId, userId },
+      });
       liked = true;
     }
 
-    const likesCount = await prisma.like.count({ where: { postId } });
-
-    return NextResponse.json({ success: true, liked, likesCount });
+    return NextResponse.json({ success: true, liked });
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to toggle like" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to like post" }, { status: 500 });
   }
 }
 
