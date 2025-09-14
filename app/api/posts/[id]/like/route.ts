@@ -1,38 +1,28 @@
+import { authOptions } from "@/app/lib/nextAuth";
 import { prisma } from "@/prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
-// POST /api/posts/:id/like
-export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { userId } = await req.json();
-    const postId = params.id;
-
-    if (!userId) {
-      return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    // هل المستخدم عامل لايك قبل كده؟
+    const userId = session.user.id;
+    const postId = params.id;
+
     const existing = await prisma.like.findUnique({
-      where: {
-        postId_userId: { postId, userId },
-      },
+      where: { postId_userId: { postId, userId } },
     });
 
     let liked: boolean;
     if (existing) {
-      // إلغاء اللايك
-      await prisma.like.delete({
-        where: { id: existing.id },
-      });
+      await prisma.like.delete({ where: { id: existing.id } });
       liked = false;
     } else {
-      // إضافة لايك
-      await prisma.like.create({
-        data: { postId, userId },
-      });
+      await prisma.like.create({ data: { postId, userId } });
       liked = true;
     }
 
@@ -43,12 +33,11 @@ export async function POST(
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const postId = request.nextUrl.searchParams.get("postId");
-
+    const postId = new URL(request.url).searchParams.get("postId");
     if (!postId)
-      return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
+      return NextResponse.json({ error: "Post ID required" }, { status: 400 });
 
     const likes = await prisma.like.findMany({
       where: { postId },

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Heart, MessageCircle, User, Send } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 type Comment = {
   id: string;
@@ -14,12 +15,10 @@ type Comment = {
 
 export default function PostActions({
   postId,
-  userId,
   initialLikes = [],
   initialComments = [],
 }: {
   postId: string;
-  userId: string;
   initialLikes: Array<{
     id: string;
     userId: string;
@@ -37,6 +36,9 @@ export default function PostActions({
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { data: session } = useSession();
+  const userId = session?.user?.id; // هنا بقى المصدر الوحيد
 
   useEffect(() => {
     if (!userId) {
@@ -75,7 +77,7 @@ export default function PostActions({
       const res = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, content: commentText.trim() }),
+        body: JSON.stringify({ content: commentText.trim() }), // بدون userId
       });
       const data = await res.json();
       if (data.success && data.comment) {
@@ -109,9 +111,7 @@ export default function PostActions({
             </span>
           </button>
           <button
-            onClick={() => {
-              setShowComments(!showComments);
-            }}
+            onClick={() => setShowComments(!showComments)}
             className="flex cursor-pointer items-center space-x-2 text-gray-500 hover:text-blue-500"
           >
             <MessageCircle className="w-5 h-5" />
