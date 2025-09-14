@@ -23,20 +23,49 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const userButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  // يقفل المنيو لو ضغط بره
+  // إغلاق المنيو عند الضغط خارجها
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      
+      // تأكد أن الضغطة ليست على زر المستخدم أو المنيو نفسه
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(target) &&
+        userButtonRef.current && 
+        !userButtonRef.current.contains(target)
+      ) {
         setOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    // إغلاق المنيو عند الضغط على ESC
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [open]);
+
+  // إغلاق المنيو عند فقدان التركيز
+  const handleBlur = (e: React.FocusEvent) => {
+    // تأكد أن التركيز لم ينتقل إلى عنصر داخل المنيو
+    if (!dropdownRef.current?.contains(e.relatedTarget as Node)) {
+      setOpen(false);
+    }
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -52,10 +81,14 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
         {/* User Section / Sign In */}
         <div className="md:block">
           {status === "authenticated" && user ? (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative">
               <button
-                className="flex items-center space-x-2 cursor-pointer"
+                ref={userButtonRef}
+                className="flex items-center space-x-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg p-1"
                 onClick={() => setOpen(!open)}
+                onBlur={handleBlur}
+                aria-expanded={open}
+                aria-haspopup="true"
               >
                 <Image
                   src={user.image || "/default-avatar.png"}
@@ -71,22 +104,36 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
+                <div
+                  ref={dropdownRef}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-opacity-50"
+                  role="menu"
+                  aria-orientation="vertical"
+                  onBlur={handleBlur}
+                >
                   <Link
                     href="/profile"
-                    className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
+                    className="block px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none transition-colors"
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
                   >
                     Profile
                   </Link>
                   <Link
                     href="/settings"
-                    className="block px-4 py-2 text-black hover:bg-gray-900 hover:text-white"
+                    className="block px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none transition-colors"
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
                   >
                     Settings
                   </Link>
                   <button
-                    onClick={() => signOut()}
-                    className="w-full text-left px-4 py-2 text-black hover:bg-red-600 cursor-pointer hover:text-white"
+                    onClick={() => {
+                      signOut();
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-black hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 focus:outline-none cursor-pointer transition-colors"
+                    role="menuitem"
                   >
                     Sign out
                   </button>
@@ -102,8 +149,10 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
 
         {/* Hamburger (mobile) */}
         <button
-          className="md:hidden p-2 cursor-pointer text-black"
+          className="md:hidden p-2 cursor-pointer text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-expanded={menuOpen}
+          aria-label="Toggle mobile menu"
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
