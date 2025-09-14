@@ -39,7 +39,7 @@ export default function PostCard({
             {user?.image ? (
               <Image
                 src={user.image}
-                alt={user.name ?? "User"}
+                alt={user.name || "User"}
                 width={40}
                 height={40}
                 className="rounded-full"
@@ -50,7 +50,7 @@ export default function PostCard({
           </div>
           <div>
             <p className="font-semibold text-gray-800">
-              {user?.name ?? "Undefined user"}
+              {user?.name || "Undefined user"}
             </p>
             <div className="flex items-center text-sm text-gray-500">
               <Calendar className="w-3 h-3 mr-1" />
