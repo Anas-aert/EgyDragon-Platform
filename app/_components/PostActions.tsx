@@ -9,7 +9,7 @@ type Comment = {
   id: string;
   content: string;
   userId: string;
-  user: { name: string; image?: string };
+  user?: { name?: string; image?: string };
   createdAt: string;
 };
 
@@ -22,32 +22,30 @@ export default function PostActions({
   initialLikes: Array<{
     id: string;
     userId: string;
-    user: { name: string; image?: string };
+    user?: { name?: string; image?: string };
   }>;
   initialComments: Comment[];
 }) {
-  const { data: session, status } = useSession();
-
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes.length);
-  const [likesUsers] = useState(initialLikes.map((like) => like.user));
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
 
-  // user info from session
-  const userId = (session?.user)?.id;
-  const userName = session?.user?.name;
-  const userImage = session?.user?.image;
+  const { data, status } = useSession();
+
+  // Get user info from session
+  const userId = data?.user?.id as string | undefined;
+  const userName = data?.user?.name;
+  const userImage = data?.user?.image;
 
   useEffect(() => {
     if (!userId || status !== "authenticated") {
       setLiked(false);
       return;
     }
-    // Check if current user liked the post
     setLiked(initialLikes.some((like) => like.userId === userId));
   }, [initialLikes, userId, status]);
 
@@ -67,7 +65,9 @@ export default function PostActions({
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || "Failed to like post");
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to like post");
+      }
 
       if (data.success) {
         setLiked(data.liked);
@@ -100,7 +100,9 @@ export default function PostActions({
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Failed to add comment");
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to add comment");
+      }
 
       if (data.success && data.comment) {
         setComments([...comments, data.comment]);
@@ -121,16 +123,6 @@ export default function PostActions({
       handleComment();
     }
   };
-
-  // handle loading session
-  if (status === "loading") {
-    return (
-      <div className="px-8 py-4 text-center text-gray-500">
-        <Loader2 className="w-5 h-5 animate-spin inline-block mr-2" />
-        Loading session...
-      </div>
-    );
-  }
 
   return (
     <div className="border-t border-gray-100">
@@ -172,41 +164,6 @@ export default function PostActions({
             </span>
           </button>
         </div>
-
-        {/* Show likes users */}
-        {likesUsers.length > 0 && (
-          <div className="hidden md:flex items-center space-x-1">
-            <span className="text-xs text-gray-500">Liked by</span>
-            <div className="flex -space-x-1">
-              {likesUsers.slice(0, 3).map((user, index) => (
-                <div
-                  key={index}
-                  className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
-                  title={user?.name || "User"}
-                >
-                  {user.image ? (
-                    <Image
-                      src={user?.image || "/default-avatar.png"}
-                      alt={user?.name || "User"}
-                      width={24}
-                      height={24}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <User className="w-3 h-3 text-white" />
-                  )}
-                </div>
-              ))}
-              {likesUsers.length > 3 && (
-                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-300 flex items-center justify-center">
-                  <span className="text-xs font-medium text-gray-600">
-                    +{likesUsers.length - 3}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Comments section */}
@@ -217,7 +174,7 @@ export default function PostActions({
               <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
                 {userImage ? (
                   <Image
-                    src={userImage || "/default-avatar.png"}
+                    src={userImage}
                     alt={userName || "User"}
                     width={32}
                     height={32}
