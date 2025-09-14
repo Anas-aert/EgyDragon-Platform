@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     const url = new URL(request.url);
     const postId = url.pathname.split("/")[6];
+    console.log(postId)
 
     if (!postId)
       return NextResponse.json(
