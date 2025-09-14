@@ -3,11 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "lh3.googleusercontent.com" },
-      { protocol: "https", hostname: "avatars.githubusercontent.com" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "*.googlesyndication.com" },
-      { protocol: "https", hostname: "*.googleusercontent.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" }, // صور Google
+      { protocol: "https", hostname: "avatars.githubusercontent.com" }, // صور GitHub
+      { protocol: "https", hostname: "images.unsplash.com" }, // Unsplash
+      { protocol: "https", hostname: "*.googlesyndication.com" }, // صور إعلانات Google
+      { protocol: "https", hostname: "*.googleusercontent.com" }, // صور مرتبطة بحساب Google
     ],
   },
   eslint: {
@@ -27,23 +27,24 @@ const nextConfig: NextConfig = {
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
-                https://tpc.googlesyndication.com
-                https://fpyf8.com
-                https://*.adtrafficquality.google
-                https://vaimucuvikuwu.net
-                https://my.rtmark.net;
+                https://tpc.googlesyndication.com;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
-                https://tpc.googlesyndication.com
-                https://fpyf8.com
-                https://*.adtrafficquality.google
-                https://vaimucuvikuwu.net
-                https://my.rtmark.net;
+                https://tpc.googlesyndication.com;
 
-              style-src 'self' 'unsafe-inline';
+              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+
+              img-src 'self' data: blob:
+                https://lh3.googleusercontent.com
+                https://avatars.githubusercontent.com
+                https://images.unsplash.com
+                https://*.googlesyndication.com
+                https://*.googleusercontent.com;
+
+              font-src 'self' https://fonts.gstatic.com;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -52,18 +53,11 @@ const nextConfig: NextConfig = {
                 https://*.googlesyndication.com
                 https://*.googleadservices.com
                 https://*.adservice.google.com
-                https://*.adtrafficquality.google
-                https://fpyf8.com
-                https://vaimucuvikuwu.net
-                https://my.rtmark.net;
+                https://*.adtrafficquality.google;
 
               frame-src 'self'
                 https://googleads.g.doubleclick.net
-                https://*.googlesyndication.com
-                https://*.google.com
-                https://*.adtrafficquality.google;
-                
-              img-src 'self' data: https: blob:;
+                https://pagead2.googlesyndication.com;
             `.replace(/\s{2,}/g, " "),
           },
           {
