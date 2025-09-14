@@ -21,30 +21,19 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value: `
-              default-src 'self';
-
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
-                https://tpc.googlesyndication.com;
+                https://tpc.googlesyndication.com
+                https://ep2.adtrafficquality.google;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
-                https://tpc.googlesyndication.com;
-
-              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-
-              img-src 'self' data: blob:
-                https://lh3.googleusercontent.com
-                https://avatars.githubusercontent.com
-                https://images.unsplash.com
-                https://*.googlesyndication.com
-                https://*.googleusercontent.com;
-
-              font-src 'self' https://fonts.gstatic.com;
+                https://tpc.googlesyndication.com
+                https://ep2.adtrafficquality.google;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -53,11 +42,8 @@ const nextConfig: NextConfig = {
                 https://*.googlesyndication.com
                 https://*.googleadservices.com
                 https://*.adservice.google.com
-                https://*.adtrafficquality.google;
-
-              frame-src 'self'
-                https://googleads.g.doubleclick.net
-                https://pagead2.googlesyndication.com;
+                https://*.adtrafficquality.google
+                https://ep2.adtrafficquality.google;
             `.replace(/\s{2,}/g, " "),
           },
           {
