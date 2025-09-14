@@ -9,7 +9,7 @@ type Comment = {
   id: string;
   content: string;
   userId: string;
-  user?: { name?: string; image?: string };
+  user: { name: string; image?: string };
   createdAt: string;
 };
 
@@ -22,10 +22,12 @@ export default function PostActions({
   initialLikes: Array<{
     id: string;
     userId: string;
-    user?: { name?: string; image?: string };
+    user: { name: string; image?: string };
   }>;
   initialComments: Comment[];
 }) {
+  const { data: session, status } = useSession();
+
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes.length);
   const [likesUsers] = useState(initialLikes.map((like) => like.user));
@@ -35,18 +37,17 @@ export default function PostActions({
   const [loading, setLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
 
-  const { data, status } = useSession();
-
-  // Get user info from session
-  const userId = data?.user?.id as string | undefined;
-  const userName = data?.user?.name;
-  const userImage = data?.user?.image;
+  // user info from session
+  const userId = (session?.user)?.id;
+  const userName = session?.user?.name;
+  const userImage = session?.user?.image;
 
   useEffect(() => {
     if (!userId || status !== "authenticated") {
       setLiked(false);
       return;
     }
+    // Check if current user liked the post
     setLiked(initialLikes.some((like) => like.userId === userId));
   }, [initialLikes, userId, status]);
 
@@ -66,9 +67,7 @@ export default function PostActions({
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to like post");
-      }
+      if (!res.ok) throw new Error(data.error || "Failed to like post");
 
       if (data.success) {
         setLiked(data.liked);
@@ -101,9 +100,7 @@ export default function PostActions({
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to add comment");
-      }
+      if (!res.ok) throw new Error(data.message || "Failed to add comment");
 
       if (data.success && data.comment) {
         setComments([...comments, data.comment]);
@@ -124,6 +121,16 @@ export default function PostActions({
       handleComment();
     }
   };
+
+  // handle loading session
+  if (status === "loading") {
+    return (
+      <div className="px-8 py-4 text-center text-gray-500">
+        <Loader2 className="w-5 h-5 animate-spin inline-block mr-2" />
+        Loading session...
+      </div>
+    );
+  }
 
   return (
     <div className="border-t border-gray-100">
@@ -177,7 +184,7 @@ export default function PostActions({
                   className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
                   title={user?.name || "User"}
                 >
-                  {user?.image ? (
+                  {user.image ? (
                     <Image
                       src={user?.image || "/default-avatar.png"}
                       alt={user?.name || "User"}
@@ -210,7 +217,7 @@ export default function PostActions({
               <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
                 {userImage ? (
                   <Image
-                    src={userImage}
+                    src={userImage || "/default-avatar.png"}
                     alt={userName || "User"}
                     width={32}
                     height={32}
@@ -233,7 +240,7 @@ export default function PostActions({
                 <button
                   onClick={handleComment}
                   disabled={!commentText.trim() || commentLoading}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-1"
+                  className="px-4 py-2 cursor-pointer bg-blue-600 text-white text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-1"
                 >
                   {commentLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

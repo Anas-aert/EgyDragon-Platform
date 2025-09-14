@@ -148,7 +148,7 @@ export default function NavBar() {
                       signOut();
                       setOpen(false);
                     }}
-                    className="flex items-center space-x-2 w-full text-left px-4 py-2 text-black hover:bg-red-50 hover:text-red-600"
+                    className="flex items-center cursor-pointer space-x-2 w-full text-left px-4 py-2 text-black hover:bg-red-50 hover:text-red-600"
                   >
                     <LogOut size={16} />
                     <span>Sign out</span>
