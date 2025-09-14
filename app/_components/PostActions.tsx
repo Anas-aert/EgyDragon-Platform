@@ -64,6 +64,7 @@ export default function PostActions({
       const res = await fetch(`/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        cache: "no-store"
       });
       
       const data = await res.json();
@@ -98,6 +99,7 @@ export default function PostActions({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: commentText.trim() }),
+        cache: "no-store"
       });
       
       const data = await res.json();
