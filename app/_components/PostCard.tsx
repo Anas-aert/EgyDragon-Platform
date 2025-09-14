@@ -65,7 +65,6 @@ export default function PostCard({
       </div>
       <PostActions
         postId={post.id}
-        userId={user.id}
         initialLikes={post.likes}
         initialComments={post.comments}
       />
