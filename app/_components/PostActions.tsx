@@ -61,7 +61,7 @@ export default function PostActions({
     
     setLoading(true);
     try {
-      const res = await fetch(`/api/posts/${postId}/like`, {
+      const res = await fetch(`https://egydragon-anas.vercel.app/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         cache: "no-store"
@@ -95,7 +95,7 @@ export default function PostActions({
     
     setCommentLoading(true);
     try {
-      const res = await fetch(`/api/posts/${postId}/comment`, {
+      const res = await fetch(`https://egydragon-anas.vercel.app/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: commentText.trim() }),

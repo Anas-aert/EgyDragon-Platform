@@ -25,7 +25,6 @@ export default function AboutPage() {
               width={600}
               height={400}
               className="rounded-2xl shadow-lg object-cover"
-              loading="lazy"
             />
           </div>
 
