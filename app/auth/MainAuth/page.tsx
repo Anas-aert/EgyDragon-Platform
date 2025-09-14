@@ -82,7 +82,6 @@ export default function LoginPage() {
                   height={50}
                   src={"/github-mark.svg"}
                   alt="Github"
-                  loading="lazy"
                 />
                 <span className="text-lg">Continue with GitHub</span>
               </button>
