@@ -70,7 +70,6 @@ model Post {
   comments  Comment[]
 }
 
-
 model Comment {
   id        String   @id @default(cuid())
   content   String
@@ -83,12 +82,12 @@ model Comment {
 }
 
 model Like {
-  id     String @id @default(cuid())
-  postId String
-  userId String
-  post Post @relation(fields: [postId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
-  @@unique([postId, userId], name: "postId_userId") // اسم واضح
 
+  @@unique([postId, userId], name: "postId_userId") // اسم واضح
 }
