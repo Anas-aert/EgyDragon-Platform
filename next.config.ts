@@ -35,7 +35,12 @@ const nextConfig: NextConfig = {
                 https://*.googlesyndication.com
                 https://*.googleusercontent.com;
               font-src 'self' https://fonts.gstatic.com;
-              connect-src 'self' https://*.vercel-insights.com;
+              connect-src 'self'
+                https://*.vercel-insights.com
+                https://*.google.com
+                https://*.g.doubleclick.net
+                https://*.googlesyndication.com
+                https://ep1.adtrafficquality.google;
               frame-src 'self'
                 https://googleads.g.doubleclick.net
                 https://pagead2.googlesyndication.com;
