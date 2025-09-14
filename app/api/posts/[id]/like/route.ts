@@ -2,10 +2,10 @@
 import { authOptions } from "@/app/lib/nextAuth";
 import { prisma } from "@/prisma/client";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(
-  req: Request, 
+  req: NextRequest, 
   { params }: { params: { id: string } }
 ) {
   try {
@@ -84,7 +84,7 @@ export async function POST(
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
