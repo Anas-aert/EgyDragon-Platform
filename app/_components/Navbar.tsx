@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, Home, Users, Info, User, Settings, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 interface User {
@@ -21,16 +22,29 @@ interface NavbarProps {
 function Navvbar({ status, user, signOut }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const userButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  // إغلاق المنيو عند الضغط خارجها
+  // Navigation links
+  const navLinks = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/users", label: "Users", icon: Users },
+    { href: "/about", label: "About", icon: Info },
+  ];
+
+  // Check if link is active
+  const isActiveLink = (href: string) => {
+    return pathname === href;
+  };
+
+  // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       const target = e.target as Node;
       
-      // تأكد أن الضغطة ليست على زر المستخدم أو المنيو نفسه
+      // Make sure the click is not on the user button or the menu itself
       if (
         dropdownRef.current && 
         !dropdownRef.current.contains(target) &&
@@ -41,7 +55,7 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
       }
     }
 
-    // إغلاق المنيو عند الضغط على ESC
+    // Close menu when pressing ESC
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setOpen(false);
@@ -59,9 +73,9 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
     }
   }, [open]);
 
-  // إغلاق المنيو عند فقدان التركيز
+  // Close menu when losing focus
   const handleBlur = (e: React.FocusEvent) => {
-    // تأكد أن التركيز لم ينتقل إلى عنصر داخل المنيو
+    // Make sure focus didn't move to an element inside the menu
     if (!dropdownRef.current?.contains(e.relatedTarget as Node)) {
       setOpen(false);
     }
@@ -76,7 +90,26 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
         </Link>
 
         {/* Links */}
-        <div className="hidden md:flex space-x-6">{/* روابط أخرى */}</div>
+        <div className="hidden md:flex space-x-6">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive = isActiveLink(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                }`}
+              >
+                <Icon size={18} />
+                <span className="font-medium">{link.label}</span>
+              </Link>
+            );
+          })}
+        </div>
 
         {/* User Section / Sign In */}
         <div className="md:block">
@@ -113,29 +146,32 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
                 >
                   <Link
                     href="/profile"
-                    className="block px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none transition-colors"
                     role="menuitem"
                     onClick={() => setOpen(false)}
                   >
-                    Profile
+                    <User size={16} />
+                    <span>Profile</span>
                   </Link>
                   <Link
                     href="/settings"
-                    className="block px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none transition-colors"
                     role="menuitem"
                     onClick={() => setOpen(false)}
                   >
-                    Settings
+                    <Settings size={16} />
+                    <span>Settings</span>
                   </Link>
                   <button
                     onClick={() => {
                       signOut();
                       setOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 text-black hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 focus:outline-none cursor-pointer transition-colors"
+                    className="flex items-center space-x-2 w-full text-left px-4 py-2 text-black hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 focus:outline-none cursor-pointer transition-colors"
                     role="menuitem"
                   >
-                    Sign out
+                    <LogOut size={16} />
+                    <span>Sign out</span>
                   </button>
                 </div>
               )}
@@ -160,8 +196,75 @@ function Navvbar({ status, user, signOut }: NavbarProps) {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-4">
-          {/* روابط الموبايل */}
+        <div className="md:hidden bg-white shadow-md px-6 py-4 space-y-2 border-t border-gray-200">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive = isActiveLink(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className={`relative flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+                  isActive
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                }`}
+              >
+                <Icon size={20} />
+                <span className="font-medium">{link.label}</span>
+                
+                {/* Active indicator for mobile */}
+                {isActive && (
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full" />
+                )}
+              </Link>
+            );
+          })}
+          
+          {/* Mobile User Section */}
+          {status === "authenticated" && user && (
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex items-center space-x-3 mb-4">
+                <Image
+                  src={user.image || "/default-avatar.png"}
+                  width={40}
+                  height={40}
+                  alt="Profile"
+                  className="rounded-full"
+                />
+                <span className="font-medium text-gray-900">{user.name}</span>
+              </div>
+              <div className="space-y-2">
+                <Link
+                  href="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <User size={18} />
+                  <span>Profile</span>
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Settings size={18} />
+                  <span>Settings</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setMenuOpen(false);
+                  }}
+                  className="flex items-center space-x-2 w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <LogOut size={18} />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </nav>
