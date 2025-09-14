@@ -26,24 +26,30 @@ const nextConfig: NextConfig = {
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
-                https://tpc.googlesyndication.com;
+                https://tpc.googlesyndication.com
+                https://fpyf8.com;
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
               img-src 'self' data:
                 https://lh3.googleusercontent.com
                 https://avatars.githubusercontent.com
                 https://images.unsplash.com
                 https://*.googlesyndication.com
-                https://*.googleusercontent.com;
+                https://*.googleusercontent.com
+                https://fpyf8.com;
               font-src 'self' https://fonts.gstatic.com;
               connect-src 'self'
                 https://*.vercel-insights.com
                 https://*.google.com
                 https://*.g.doubleclick.net
                 https://*.googlesyndication.com
-                https://ep1.adtrafficquality.google;
+                https://*.googleadservices.com
+                https://*.adservice.google.com
+                https://*.adtrafficquality.google
+                https://fpyf8.com;
               frame-src 'self'
                 https://googleads.g.doubleclick.net
-                https://pagead2.googlesyndication.com;
+                https://pagead2.googlesyndication.com
+                https://fpyf8.com;
             `.replace(/\s{2,}/g, " "),
           },
           {
