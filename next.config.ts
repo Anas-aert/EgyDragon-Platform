@@ -30,7 +30,8 @@ const nextConfig: NextConfig = {
                 https://tpc.googlesyndication.com
                 https://fpyf8.com
                 https://*.adtrafficquality.google
-                https://vaimucuvikuwu.net;
+                https://vaimucuvikuwu.net
+                https://my.rtmark.net;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
@@ -39,7 +40,10 @@ const nextConfig: NextConfig = {
                 https://tpc.googlesyndication.com
                 https://fpyf8.com
                 https://*.adtrafficquality.google
-                https://vaimucuvikuwu.net;
+                https://vaimucuvikuwu.net
+                https://my.rtmark.net;
+
+              style-src 'self' 'unsafe-inline';
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -50,8 +54,15 @@ const nextConfig: NextConfig = {
                 https://*.adservice.google.com
                 https://*.adtrafficquality.google
                 https://fpyf8.com
-                https://vaimucuvikuwu.net;
+                https://vaimucuvikuwu.net
+                https://my.rtmark.net;
 
+              frame-src 'self'
+                https://googleads.g.doubleclick.net
+                https://*.googlesyndication.com
+                https://*.google.com
+                https://*.adtrafficquality.google;
+                
               img-src 'self' data: https: blob:;
             `.replace(/\s{2,}/g, " "),
           },
