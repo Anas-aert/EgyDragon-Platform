@@ -174,12 +174,12 @@ export default function PostActions({
                 <div
                   key={index}
                   className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
-                  title={user.name}
+                  title={user?.name || "User"}
                 >
                   {user.image ? (
                     <Image
-                      src={user.image}
-                      alt={user.name}
+                      src={user?.image || "/default-avatar.png"}
+                      alt={user?.name || "User"}
                       width={24}
                       height={24}
                       className="object-cover"
@@ -209,7 +209,7 @@ export default function PostActions({
               <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
                 {userImage ? (
                   <Image
-                    src={userImage}
+                    src={userImage || "/default-avatar.png"}
                     alt={userName || "User"}
                     width={32}
                     height={32}
@@ -266,7 +266,7 @@ export default function PostActions({
                   <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex-shrink-0">
                     {c.user?.image ? (
                       <Image
-                        src={c.user.image}
+                        src={c.user?.image || "/default-avatar.png"}
                         alt={c.user?.name || "User"}
                         width={32}
                         height={32}

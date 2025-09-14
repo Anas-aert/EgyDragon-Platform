@@ -38,8 +38,8 @@ export default function PostCard({
           <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
             {user?.image ? (
               <Image
-                src={user.image}
-                alt={user.name || "User"}
+                src={user?.image || "/default-avatar.png"}
+                alt={user?.name || "User"}
                 width={40}
                 height={40}
                 className="rounded-full"
