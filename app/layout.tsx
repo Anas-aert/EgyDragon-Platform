@@ -83,14 +83,14 @@ export default async function RootLayout({
           data-cfasync="false"
         ></script> */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" href="/Team.png" />
+        <link rel="icon" type="image/png" href="https://egydragon-anas.vercel.app/Team.png" />
 
         {/* Google Search Console verification */}
         <meta
           name="google-site-verification"
           content="K_ia_fdAuYdnwaITlI-2Khh1EnbHbDojnvzzwHsbCDs"
         />
-        <link rel="icon" type="image/png" href="https://egydragon-anas.vercel.app/image.png" />
         <meta
           name="google-adsense-account"
           content="ca-pub-4683128936517413"
