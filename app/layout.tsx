@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "EgyDragon - Anas's Blog",
     description:
-      "Python & Full-Stack Programmer sharing projects and tutorials",
+      "Created by Anas Muhammed: Python & Full-Stack Programmer",
     url: "https://egydragon-anas.vercel.app/",
     siteName: "EgyDragon Blog",
     locale: "en_US",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image", // تحسين ظهور الموقع على تويتر
     title: "EgyDragon - Anas's Blog",
     description:
-      "Python & Full-Stack Programmer sharing projects and tutorials",
+      "Created by Anas Muhammed: Python & Full-Stack Programmer",
   },
 };
 
@@ -174,7 +174,7 @@ export default async function RootLayout({
             </div>
 
             <p className="text-sm opacity-75">
-              Made with Next.js, Tailwind CSS, and ❤️
+              Made with Next.js, Tailwind CSS, and ❤️Anas💖
             </p>
           </div>
         </footer>
