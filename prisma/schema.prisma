@@ -50,12 +50,13 @@ model User {
   emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
-  followers     Int       @default(0)
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
   likes         Like[]
   comments      Comment[]
+  followers     Follow[]  @relation("UserFollowers")
+  following     Follow[]  @relation("UserFollowing")
   updatedAt     DateTime  @updatedAt
 }
 
@@ -90,5 +91,16 @@ model Like {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
-  @@unique([postId, userId], name: "postId_userId") // اسم واضح
+  @@unique([postId, userId], name: "postId_userId")
+}
+
+model Follow {
+  id          String @id @default(cuid())
+  followerId  String
+  followingId String
+
+  follower User @relation("UserFollowing", fields: [followerId], references: [id])
+  following User @relation("UserFollowers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId], name: "followerId_followingId")
 }
