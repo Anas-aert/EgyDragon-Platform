@@ -68,7 +68,7 @@ export default async function Home() {
           </p>
         ) : (
           postsWithUsers.map(({ post, user }) => (
-            <div key={post.id} className="flex flex-col-reverse justify-center">
+            <div key={post.id} className="flex flex-col justify-center">
               <PostCard post={post} user={user} />
             </div>
           ))
