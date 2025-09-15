@@ -25,14 +25,8 @@ export const metadata: Metadata = {
   keywords: [
     "Python tutorials",
     "Full-Stack development",
-    "Next.js guide",
-    "JavaScript tips",
     "React best practices",
     "Web development blog",
-    "Prisma ORM",
-    "NextAuth authentication",
-    "Tailwind CSS",
-    "Vercel deploy",
     "Anas Muhammed",
     "EgyDragon blog",
     "Anas Muhammad programming",
@@ -96,7 +90,7 @@ export default async function RootLayout({
           name="google-site-verification"
           content="K_ia_fdAuYdnwaITlI-2Khh1EnbHbDojnvzzwHsbCDs"
         />
-
+        <link rel="icon" type="image/png" href="/image.png" />
         <meta
           name="google-adsense-account"
           content="ca-pub-4683128936517413"
