@@ -61,16 +61,14 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
-      <div className="max-w-4xl mx-auto flex flex-col-reverse space-y-8">
+      <div className="max-w-4xl mx-auto flex flex-col space-y-8">
         {postsWithUsers.length === 0 ? (
           <p className="text-center text-gray-500 py-20">
             No posts yet. Be the first to post!
           </p>
         ) : (
           postsWithUsers.map(({ post, user }) => (
-            <div key={post.id} className="flex flex-col justify-center">
-              <PostCard post={post} user={user} />
-            </div>
+            <PostCard key={post.id} post={post} user={user} />
           ))
         )}
       </div>
