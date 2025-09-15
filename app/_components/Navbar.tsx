@@ -79,7 +79,7 @@ export default function NavBar() {
         </Link>
 
         {/* Links (desktop) */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden  md:flex space-x-6">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = isActiveLink(link.href);
@@ -101,7 +101,7 @@ export default function NavBar() {
         </div>
 
         {/* User Section (desktop) */}
-        <div className="hidden md:block">
+        <div className="md:block">
           {status === "authenticated" && user ? (
             <div className="relative">
               <button
@@ -117,7 +117,7 @@ export default function NavBar() {
                   className="rounded-full"
                   priority
                 />
-                <span className="font-medium hidden lg:block text-black">
+                <span className="font-medium hidden sm:hidden lg:block text-black">
                   {user.name}
                 </span>
               </button>
