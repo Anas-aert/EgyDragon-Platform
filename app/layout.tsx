@@ -90,7 +90,7 @@ export default async function RootLayout({
           name="google-site-verification"
           content="K_ia_fdAuYdnwaITlI-2Khh1EnbHbDojnvzzwHsbCDs"
         />
-        <link rel="icon" type="image/png" href="/image.png" />
+        <link rel="icon" type="image/png" href="https://egydragon-anas.vercel.app/image.png" />
         <meta
           name="google-adsense-account"
           content="ca-pub-4683128936517413"
