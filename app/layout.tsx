@@ -76,6 +76,7 @@ export default async function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4683128936517413"
           crossOrigin="anonymous"
         ></script>
+
         {/* <script
           src="https://fpyf8.com/88/tag.min.js"
           data-zone="170492"

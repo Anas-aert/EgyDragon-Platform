@@ -47,6 +47,7 @@ export default function PostCard({
             ) : (
               <User className="w-5 h-5 text-white" />
             )}
+            <span className="bg-red-500 text-white p-3 rounded-xl hover:scale-105 hover:bg-red-800 transition-all duration-700">Follow</span>
           </div>
           <div>
             <p className="font-semibold text-gray-800">
