@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Calendar, User, Users, Heart, MessageCircle } from "lucide-react";
 import PostActions from "./PostActions";
 import { useState, useEffect, useCallback } from "react";
@@ -270,7 +272,7 @@ export default function PostCard({
           </p>
         </div>
 
-        {/* Post Stats Preview */}
+        {/* Post Stats Preview
         <div className="px-8 pb-6">
           <div className="flex items-center space-x-6 text-sm text-gray-500">
             <div className="flex items-center space-x-2">
@@ -282,7 +284,7 @@ export default function PostCard({
               <span>{post.comments.length} {post.comments.length !== 1 ? "comments" : "comment"}</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Post Actions */}
         <div className="border-t border-gray-100">
