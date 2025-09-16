@@ -1,6 +1,7 @@
 "use client"; // مهم في app directory
 import { useEffect } from "react";
 
+
 export default function VignetteLoader() {
   useEffect(() => {
     const s = document.createElement("script");
