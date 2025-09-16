@@ -75,7 +75,7 @@ export default async function Home() {
             Social Feed
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-300">
-            Discover amazing stories, connect with people, and share your thoughts with the world
+            Discover amazing Tips, connect with people, and share your Programming problem with the world and your Ideas
           </p>
           <div className="mt-8 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent animate-fade-in delay-500"></div>
         </div>
