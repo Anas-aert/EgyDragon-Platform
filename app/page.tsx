@@ -71,13 +71,13 @@ export default async function Home() {
       {/* Header Section */}
       <div className="relative z-10 pt-12 pb-8">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 animate-fade-in">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 animate-fade-in animate-gradient-shift">
             Social Feed
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in-delay">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-300">
             Discover amazing stories, connect with people, and share your thoughts with the world
           </p>
-          <div className="mt-8 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
+          <div className="mt-8 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent animate-fade-in delay-500"></div>
         </div>
       </div>
 
@@ -85,9 +85,9 @@ export default async function Home() {
       <div className="relative z-10 px-6 pb-16">
         <div className="max-w-4xl mx-auto">
           {postsWithUsers.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="mb-8">
-                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mb-6 shadow-lg animate-bounce">
+            <div className="text-center py-20 animate-fade-in delay-700">
+              <div className="mb-8 animate-float">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mb-6 shadow-lg animate-glow">
                   <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
@@ -103,8 +103,7 @@ export default async function Home() {
               {postsWithUsers.map(({ post, user }, index) => (
                 <div 
                   key={post.id} 
-                  className="animate-fade-in-up"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className={`animate-fade-in-up delay-${Math.min(index * 100 + 200, 900)} hover-lift`}
                 >
                   <PostCard post={post} author={user} />
                 </div>
@@ -113,32 +112,6 @@ export default async function Home() {
           )}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-        
-        .animate-fade-in-delay {
-          animation: fade-in 0.8s ease-out 0.3s forwards;
-          opacity: 0;
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 0.6s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
     </main>
   );
 }
