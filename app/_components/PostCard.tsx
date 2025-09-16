@@ -105,7 +105,6 @@ export default function PostCard({
         body: JSON.stringify({
           userId: user.id,
           postUserId: post.authorId,
-          name: user.name || "Anonymous",
         }),
         cache: "no-store",
       });
