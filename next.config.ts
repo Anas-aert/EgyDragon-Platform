@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
       // إضافة النطاق الجديد من الخطأ
       { protocol: "https", hostname: "vouphoanooque.net" },
       { protocol: "https", hostname: "*.vouphoanooque.net" },
+      // إضافة النطاق الجديد من الخطأ الثاني
+      { protocol: "https", hostname: "tzegilo.com" },
+      { protocol: "https", hostname: "*.tzegilo.com" },
     ],
   },
   eslint: {
@@ -40,7 +43,9 @@ const nextConfig: NextConfig = {
                 https://groleegni.net
                 https://*.groleegni.net
                 https://vouphoanooque.net
-                https://*.vouphoanooque.net;
+                https://*.vouphoanooque.net
+                https://tzegilo.com
+                https://*.tzegilo.com;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
@@ -52,7 +57,9 @@ const nextConfig: NextConfig = {
                 https://groleegni.net
                 https://*.groleegni.net
                 https://vouphoanooque.net
-                https://*.vouphoanooque.net;
+                https://*.vouphoanooque.net
+                https://tzegilo.com
+                https://*.tzegilo.com;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -67,7 +74,13 @@ const nextConfig: NextConfig = {
                 https://groleegni.net
                 https://*.groleegni.net
                 https://vouphoanooque.net
-                https://*.vouphoanooque.net;
+                https://*.vouphoanooque.net
+                https://tzegilo.com
+                https://*.tzegilo.com;
+
+              frame-src 'self'
+                https://web.telegram.org
+                https://t.me;
             `.replace(/\s{2,}/g, " ").trim(),
           },
           {
