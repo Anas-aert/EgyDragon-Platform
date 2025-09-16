@@ -20,7 +20,7 @@ export default function AboutPage() {
           {/* Image */}
           <div>
             <Image
-              src="/Team.png"
+              src="/Team2.png"
               alt="Team working"
               width={600}
               height={400}
