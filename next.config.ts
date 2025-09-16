@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       // إضافة النطاق الجديد
       { protocol: "https", hostname: "groleegni.net" },
       { protocol: "https", hostname: "*.groleegni.net" },
+      // إضافة النطاق الجديد من الخطأ
+      { protocol: "https", hostname: "vouphoanooque.net" },
+      { protocol: "https", hostname: "*.vouphoanooque.net" },
     ],
   },
   eslint: {
@@ -35,7 +38,9 @@ const nextConfig: NextConfig = {
                 https://ep2.adtrafficquality.google
                 https://*.monetag.com
                 https://groleegni.net
-                https://*.groleegni.net;
+                https://*.groleegni.net
+                https://vouphoanooque.net
+                https://*.vouphoanooque.net;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
@@ -45,7 +50,9 @@ const nextConfig: NextConfig = {
                 https://ep2.adtrafficquality.google
                 https://*.monetag.com
                 https://groleegni.net
-                https://*.groleegni.net;
+                https://*.groleegni.net
+                https://vouphoanooque.net
+                https://*.vouphoanooque.net;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -58,7 +65,9 @@ const nextConfig: NextConfig = {
                 https://ep2.adtrafficquality.google
                 https://*.monetag.com
                 https://groleegni.net
-                https://*.groleegni.net;
+                https://*.groleegni.net
+                https://vouphoanooque.net
+                https://*.vouphoanooque.net;
             `.replace(/\s{2,}/g, " ").trim(),
           },
           {
