@@ -5,6 +5,7 @@ import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
 import VignetteLoader from "./_components/ads";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,16 +66,12 @@ export const metadata: Metadata = {
   },
 };
 
-
-
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        
-        
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4683128936517413"
@@ -85,7 +82,7 @@ export default async function RootLayout({
           name="description"
           content="A Social Platform help you express your ideas and feeling freerly"
         />
-{/* 
+        {/* 
         <script
           src="https://fpyf8.com/88/tag.min.js"
           data-zone="170492"
@@ -132,7 +129,8 @@ export default async function RootLayout({
       <body
         className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <VignetteLoader/>
+        <Script src="https://otieu.com/4/9886165" />
+        <VignetteLoader />
         <NextAuthProvider>
           <NavBar />
           <main className="flex-grow">{children}</main>

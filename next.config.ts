@@ -67,6 +67,7 @@ const nextConfig: NextConfig = {
                 https://*.fleraprt.com;
 
               connect-src 'self'
+                https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://*.google.com
                 https://*.g.doubleclick.net
@@ -92,7 +93,9 @@ const nextConfig: NextConfig = {
                 https://www.google.com
                 https://ep2.adtrafficquality.google
                 https://pagead2.googlesyndication.com;
-            `.replace(/\s{2,}/g, " ").trim(),
+            `
+              .replace(/\s{2,}/g, " ")
+              .trim(),
           },
           {
             key: "X-Frame-Options",
