@@ -11,15 +11,16 @@ const nextConfig: NextConfig = {
       // إضافة نطاقات monetag
       { protocol: "https", hostname: "*.monetag.com" },
       { protocol: "https", hostname: "monetag.com" },
-      // إضافة النطاق الجديد
+      // إضافة النطاقات الأخرى
       { protocol: "https", hostname: "groleegni.net" },
       { protocol: "https", hostname: "*.groleegni.net" },
-      // إضافة النطاق الجديد من الخطأ
       { protocol: "https", hostname: "vouphoanooque.net" },
       { protocol: "https", hostname: "*.vouphoanooque.net" },
-      // إضافة النطاق الجديد من الخطأ الثاني
       { protocol: "https", hostname: "tzegilo.com" },
       { protocol: "https", hostname: "*.tzegilo.com" },
+      // إضافة النطاق الجديد من الخطأ
+      { protocol: "https", hostname: "fleraprt.com" },
+      { protocol: "https", hostname: "*.fleraprt.com" },
     ],
   },
   eslint: {
@@ -45,7 +46,9 @@ const nextConfig: NextConfig = {
                 https://vouphoanooque.net
                 https://*.vouphoanooque.net
                 https://tzegilo.com
-                https://*.tzegilo.com;
+                https://*.tzegilo.com
+                https://fleraprt.com
+                https://*.fleraprt.com;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
@@ -59,7 +62,9 @@ const nextConfig: NextConfig = {
                 https://vouphoanooque.net
                 https://*.vouphoanooque.net
                 https://tzegilo.com
-                https://*.tzegilo.com;
+                https://*.tzegilo.com
+                https://fleraprt.com
+                https://*.fleraprt.com;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -76,11 +81,17 @@ const nextConfig: NextConfig = {
                 https://vouphoanooque.net
                 https://*.vouphoanooque.net
                 https://tzegilo.com
-                https://*.tzegilo.com;
+                https://*.tzegilo.com
+                https://fleraprt.com
+                https://*.fleraprt.com;
 
               frame-src 'self'
                 https://web.telegram.org
-                https://t.me;
+                https://t.me
+                https://googleads.g.doubleclick.net
+                https://www.google.com
+                https://ep2.adtrafficquality.google
+                https://pagead2.googlesyndication.com;
             `.replace(/\s{2,}/g, " ").trim(),
           },
           {
