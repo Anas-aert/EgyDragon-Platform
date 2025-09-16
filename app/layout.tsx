@@ -71,11 +71,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <script
+        {/* <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4683128936517413"
           crossOrigin="anonymous"
-        ></script>
+        ></script> */}
 
         <meta
           name="description"

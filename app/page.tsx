@@ -60,18 +60,85 @@ export default async function Home() {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
-      <div className="max-w-4xl mx-auto flex flex-col space-y-8">
-        {postsWithUsers.length === 0 ? (
-          <p className="text-center text-gray-500 py-20">
-            No posts yet. Be the first to post!
-          </p>
-        ) : (
-          postsWithUsers.map(({ post, user }) => (
-            <PostCard key={post.id} post={post} author={user} />
-          ))
-        )}
+    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-300/20 to-indigo-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-200/10 to-blue-200/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
+
+      {/* Header Section */}
+      <div className="relative z-10 pt-12 pb-8">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 animate-fade-in">
+            Social Feed
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in-delay">
+            Discover amazing stories, connect with people, and share your thoughts with the world
+          </p>
+          <div className="mt-8 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
+        </div>
+      </div>
+
+      {/* Posts Container */}
+      <div className="relative z-10 px-6 pb-16">
+        <div className="max-w-4xl mx-auto">
+          {postsWithUsers.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="mb-8">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mb-6 shadow-lg animate-bounce">
+                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">No posts yet!</h3>
+              <p className="text-gray-500 text-lg max-w-md mx-auto leading-relaxed">
+                Be the first to share something amazing with the community. Your story could inspire others!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {postsWithUsers.map(({ post, user }, index) => (
+                <div 
+                  key={post.id} 
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <PostCard post={post} author={user} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out forwards;
+        }
+        
+        .animate-fade-in-delay {
+          animation: fade-in 0.8s ease-out 0.3s forwards;
+          opacity: 0;
+        }
+        
+        .animate-fade-in-up {
+          animation: fade-in-up 0.6s ease-out forwards;
+          opacity: 0;
+        }
+      `}</style>
     </main>
   );
 }
