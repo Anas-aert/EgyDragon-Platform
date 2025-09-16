@@ -3,11 +3,17 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "lh3.googleusercontent.com" }, // صور Google
-      { protocol: "https", hostname: "avatars.githubusercontent.com" }, // صور GitHub
-      { protocol: "https", hostname: "images.unsplash.com" }, // Unsplash
-      { protocol: "https", hostname: "*.googlesyndication.com" }, // صور إعلانات Google
-      { protocol: "https", hostname: "*.googleusercontent.com" }, // صور مرتبطة بحساب Google
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "*.googlesyndication.com" },
+      { protocol: "https", hostname: "*.googleusercontent.com" },
+      // إضافة نطاقات monetag
+      { protocol: "https", hostname: "*.monetag.com" },
+      { protocol: "https", hostname: "monetag.com" },
+      // إضافة النطاق الجديد
+      { protocol: "https", hostname: "groleegni.net" },
+      { protocol: "https", hostname: "*.groleegni.net" },
     ],
   },
   eslint: {
@@ -26,14 +32,20 @@ const nextConfig: NextConfig = {
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
                 https://tpc.googlesyndication.com
-                https://ep2.adtrafficquality.google;
+                https://ep2.adtrafficquality.google
+                https://*.monetag.com
+                https://groleegni.net
+                https://*.groleegni.net;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
                 https://tpc.googlesyndication.com
-                https://ep2.adtrafficquality.google;
+                https://ep2.adtrafficquality.google
+                https://*.monetag.com
+                https://groleegni.net
+                https://*.groleegni.net;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -43,8 +55,11 @@ const nextConfig: NextConfig = {
                 https://*.googleadservices.com
                 https://*.adservice.google.com
                 https://*.adtrafficquality.google
-                https://ep2.adtrafficquality.google;
-            `.replace(/\s{2,}/g, " "),
+                https://ep2.adtrafficquality.google
+                https://*.monetag.com
+                https://groleegni.net
+                https://*.groleegni.net;
+            `.replace(/\s{2,}/g, " ").trim(),
           },
           {
             key: "X-Frame-Options",

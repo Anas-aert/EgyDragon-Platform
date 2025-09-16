@@ -4,6 +4,7 @@ import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
+import VignetteLoader from "./_components/ads";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +22,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "EgyDragon - Anas's Blog",
-  description: "A Social Platform help you express your ideas and feeling freerly",
+  description:
+    "A Social Platform help you express your ideas and feeling freerly",
   keywords: [
     "Python tutorials",
     "Full-Stack development",
@@ -75,14 +77,21 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         ></script>
 
-        <meta name="description" content="A Social Platform help you express your ideas and feeling freerly" />
+        <meta
+          name="description"
+          content="A Social Platform help you express your ideas and feeling freerly"
+        />
 
-        <script
+        {/* <script
           src="https://fpyf8.com/88/tag.min.js"
           data-zone="170492"
           async
           data-cfasync="false"
-        ></script>
+        ></script> */}
+
+        
+
+
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/png" href="/Team.png" />
         <link
@@ -122,6 +131,7 @@ export default async function RootLayout({
       <body
         className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <VignetteLoader/>
         <NextAuthProvider>
           <NavBar />
           <main className="flex-grow">{children}</main>
