@@ -1,11 +1,9 @@
 import { prisma } from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import followSchema from "./schema";
 
-const followSchema = z.object({
-  userId: z.string().uuid({ message: "Invalid User Id" }),
-  postUserId: z.string().uuid({ message: "Invalid Post User Id" }),
-});
+
+
 
 // ✅ GET Followers count
 export async function GET(request: NextRequest) {

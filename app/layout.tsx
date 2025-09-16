@@ -41,8 +41,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "EgyDragon - Anas's Blog",
-    description:
-      "Created by Anas Muhammed: Python & Full-Stack Programmer",
+    description: "Created by Anas Muhammed: Python & Full-Stack Programmer",
     url: "https://egydragon-anas.vercel.app/",
     siteName: "EgyDragon Blog",
     locale: "en_US",
@@ -60,8 +59,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image", // تحسين ظهور الموقع على تويتر
     title: "EgyDragon - Anas's Blog",
-    description:
-      "Created by Anas Muhammed: Python & Full-Stack Programmer",
+    description: "Created by Anas Muhammed: Python & Full-Stack Programmer",
   },
 };
 
@@ -85,7 +83,11 @@ export default async function RootLayout({
         ></script> */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/png" href="/Team.png" />
-        <link rel="icon" type="image/png" href="https://egydragon-anas.vercel.app/Team.png" />
+        <link
+          rel="icon"
+          type="image/png"
+          href="https://egydragon-anas.vercel.app/Team.png"
+        />
 
         {/* Google Search Console verification */}
         <meta
