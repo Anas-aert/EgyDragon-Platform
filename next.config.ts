@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
+                https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
@@ -51,6 +52,7 @@ const nextConfig: NextConfig = {
                 https://*.fleraprt.com;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
+                https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
@@ -87,6 +89,7 @@ const nextConfig: NextConfig = {
                 https://*.fleraprt.com;
 
               frame-src 'self'
+                https://otieu.com/4/9886165
                 https://web.telegram.org
                 https://t.me
                 https://googleads.g.doubleclick.net
