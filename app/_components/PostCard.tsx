@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { Calendar, User } from "lucide-react";
 import PostActions from "./PostActions";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -36,17 +37,19 @@ type PostFromAPI = {
 
 export default function PostCard({
   post,
-  user,
+  author,
 }: {
   post: PostFromAPI;
-  user: { id: string; name?: string; image?: string };
+  author: { id: string; name?: string; image?: string };
 }) {
+  const { data: session, status } = useSession();
+  const loggedInUserId = session?.user?.id;
+
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [open, setOpen] = useState(false);
 
-  // ✅ Get followers count
-  async function fetchFollowers() {
+  const fetchFollowers = useCallback(async () => {
     try {
       const res = await fetch(`/api/followers?id=${post.authorId}`, {
         cache: "no-store",
@@ -58,52 +61,38 @@ export default function PostCard({
     } catch (err) {
       console.error("Error fetching followers:", err);
     }
-  }
+  }, [post.authorId]);
 
-  // ✅ Check following state on mount
+  const checkIfFollowing = useCallback(async () => {
+    if (!loggedInUserId) return;
+    try {
+      const res = await fetch(
+        `/api/followers/check?userId=${loggedInUserId}&postUserId=${post.authorId}`,
+        { cache: "no-store" }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setIsFollowing(data.isFollowing);
+      }
+    } catch (err) {
+      console.error("Error checking follow state:", err);
+    }
+  }, [post.authorId, loggedInUserId]);
+
   useEffect(() => {
-    async function fetchFollowers() {
-      try {
-        const res = await fetch(`/api/followers?id=${post.authorId}`, {
-          cache: "no-store",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setFollowersCount(data.followers);
-        }
-      } catch (err) {
-        console.error("Error fetching followers:", err);
-      }
-    }
-
-    async function checkIfFollowing() {
-      try {
-        const res = await fetch(
-          `/api/followers/check?userId=${user.id}&postUserId=${post.authorId}`,
-          {
-            cache: "no-store",
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setIsFollowing(data.isFollowing);
-        }
-      } catch (err) {
-        console.error("Error checking follow state:", err);
-      }
-    }
-
-    checkIfFollowing();
     fetchFollowers();
-  }, [user.id, post.authorId]); // 👈 بس id والauthorId
+    checkIfFollowing();
+  }, [fetchFollowers, checkIfFollowing]);
 
-  async function plusFollower() {
+  // 🔹 Follow
+  const plusFollower = async () => {
+    if (!loggedInUserId) return;
     try {
       const res = await fetch("/api/followers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user.id,
+          userId: loggedInUserId,
           postUserId: post.authorId,
         }),
         cache: "no-store",
@@ -111,20 +100,25 @@ export default function PostCard({
 
       if (res.ok) {
         setIsFollowing(true);
-        fetchFollowers(); // ⬅️ Update count
+        fetchFollowers();
+      } else {
+        const data = await res.json();
+        console.error("Follow failed:", data.error || data.message);
       }
     } catch (err) {
       console.error("Follow request failed:", err);
     }
-  }
+  };
 
-  async function minusFollower() {
+  // 🔹 Unfollow
+  const minusFollower = async () => {
+    if (!loggedInUserId) return;
     try {
       const res = await fetch("/api/followers", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user.id,
+          userId: loggedInUserId,
           postUserId: post.authorId,
         }),
         cache: "no-store",
@@ -133,22 +127,26 @@ export default function PostCard({
       if (res.ok) {
         setIsFollowing(false);
         setOpen(false);
-        fetchFollowers(); // ⬅️ Update count
+        fetchFollowers();
+      } else {
+        const data = await res.json();
+        console.error("Unfollow failed:", data.error || data.message);
       }
     } catch (err) {
       console.error("Unfollow request failed:", err);
     }
-  }
+  };
 
   return (
     <article className="bg-white/70 backdrop-blur-sm rounded-2xl mb-5 shadow-lg border border-white/20 overflow-hidden">
       <div className="px-8 pt-6 pb-4 border-b border-gray-100 flex items-center justify-between">
+        {/* Author Info */}
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-            {user?.image ? (
+            {author?.image ? (
               <Image
-                src={user?.image || "/default-avatar.png"}
-                alt={user?.name || "User"}
+                src={author?.image}
+                alt={author?.name || "User"}
                 width={40}
                 height={40}
                 className="rounded-full"
@@ -159,7 +157,7 @@ export default function PostCard({
           </div>
           <div>
             <p className="font-semibold text-gray-800">
-              {user?.name || "Undefined user"}
+              {author?.name || "Unknown User"}
             </p>
             <div className="flex items-center text-sm text-gray-500">
               <Calendar className="w-3 h-3 mr-1" />
@@ -168,13 +166,15 @@ export default function PostCard({
           </div>
         </div>
 
-        {/* ✅ Follow / Following + Followers Count */}
+        {/* Follow Section */}
         <div className="flex items-center space-x-3">
           <span className="text-sm text-gray-600">
             {followersCount} follower{followersCount !== 1 ? "s" : ""}
           </span>
 
-          {isFollowing === null ? (
+          {status !== "authenticated" || !loggedInUserId ? (
+            <Button disabled>Login to Follow</Button>
+          ) : isFollowing === null ? (
             <Button disabled>Loading...</Button>
           ) : !isFollowing ? (
             <Button
@@ -193,10 +193,10 @@ export default function PostCard({
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    Unfollow {user?.name || "this user"}?
+                    Unfollow {author?.name || "this user"}?
                   </DialogTitle>
                   <DialogDescription>
-                    Do you want to unfollow this guy?
+                    Do you want to unfollow this user?
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex justify-end space-x-2 mt-4">
@@ -220,6 +220,7 @@ export default function PostCard({
         </div>
       </div>
 
+      {/* Post Content */}
       <div className="px-8 py-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">{post.title}</h2>
         <p className="text-gray-700 text-lg break-words">{post.content}</p>

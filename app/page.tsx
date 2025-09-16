@@ -1,5 +1,5 @@
 // app/page.tsx
-import { prisma } from "@/prisma/client"; 
+import { prisma } from "@/prisma/client";
 import PostCard from "./_components/PostCard";
 
 type PostFromAPI = {
@@ -43,7 +43,7 @@ async function getUser(userId: string) {
 
 export default async function Home() {
   const posts = await fetchPosts();
-  
+
   // If no posts, this will be [] preventing any errors
   const postsWithUsers = await Promise.all(
     posts.map(async (post) => {
@@ -68,7 +68,7 @@ export default async function Home() {
           </p>
         ) : (
           postsWithUsers.map(({ post, user }) => (
-            <PostCard key={post.id} post={post} user={user} />
+            <PostCard key={post.id} post={post} author={user} />
           ))
         )}
       </div>
