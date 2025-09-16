@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "EgyDragon - Anas's Blog",
-  description: "Created by Anas Muhammed: Python & Full-Stack Programmer",
+  description: "A Social Platform help you express your ideas and feeling freerly",
   keywords: [
     "Python tutorials",
     "Full-Stack development",
@@ -74,6 +74,8 @@ export default async function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4683128936517413"
           crossOrigin="anonymous"
         ></script>
+
+        <meta name="description" content="A Social Platform help you express your ideas and feeling freerly" />
 
         {/* <script
           src="https://fpyf8.com/88/tag.min.js"
