@@ -1,4 +1,7 @@
 // app/page.tsx
+export const dynamic = "force-dynamic";
+
+
 import { prisma } from "@/prisma/client";
 import PostCard from "./_components/PostCard";
 
