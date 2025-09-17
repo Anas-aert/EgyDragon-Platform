@@ -54,9 +54,12 @@ export default function PostCard({
 
   const fetchFollowers = useCallback(async () => {
     try {
-      const res = await fetch(`/api/followers?id=${post.authorId}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `https://egydragon-anas.vercel.app/api/followers?id=${post.authorId}`,
+        {
+          cache: "no-store",
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         setFollowersCount(data.followers);
@@ -91,15 +94,18 @@ export default function PostCard({
   const plusFollower = async () => {
     if (!loggedInUserId) return;
     try {
-      const res = await fetch("/api/followers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: loggedInUserId,
-          postUserId: post.authorId,
-        }),
-        cache: "no-store",
-      });
+      const res = await fetch(
+        "https://egydragon-anas.vercel.app/api/followers",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: loggedInUserId,
+            postUserId: post.authorId,
+          }),
+          cache: "no-store",
+        }
+      );
 
       if (res.ok) {
         setIsFollowing(true);
@@ -117,15 +123,18 @@ export default function PostCard({
   const minusFollower = async () => {
     if (!loggedInUserId) return;
     try {
-      const res = await fetch("/api/followers", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: loggedInUserId,
-          postUserId: post.authorId,
-        }),
-        cache: "no-store",
-      });
+      const res = await fetch(
+        "https://egydragon-anas.vercel.app/api/followers",
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: loggedInUserId,
+            postUserId: post.authorId,
+          }),
+          cache: "no-store",
+        }
+      );
 
       if (res.ok) {
         setIsFollowing(false);
@@ -142,22 +151,24 @@ export default function PostCard({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   return (
-    <article 
-      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] ${isHovered ? 'ring-2 ring-purple-400/50' : ''}`}
+    <article
+      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] ${
+        isHovered ? "ring-2 ring-purple-400/50" : ""
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Gradient border effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
-      
+
       <div className="relative z-10">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-gradient-to-r from-purple-100 to-pink-100">
@@ -180,14 +191,16 @@ export default function PostCard({
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-white shadow-sm"></div>
               </div>
-              
+
               <div className="space-y-1">
                 <h3 className="font-bold text-gray-800 text-lg group-hover:text-purple-600 transition-colors">
                   {author?.name || "Unknown User"}
                 </h3>
                 <div className="flex items-center text-sm text-gray-500 space-x-2">
                   <Calendar className="w-4 h-4" />
-                  <time className="font-medium">{formatDate(post.createdAt)}</time>
+                  <time className="font-medium">
+                    {formatDate(post.createdAt)}
+                  </time>
                 </div>
               </div>
             </div>
@@ -197,20 +210,21 @@ export default function PostCard({
               <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50 rounded-full">
                 <Users className="w-4 h-4 text-gray-600" />
                 <span className="text-sm font-semibold text-gray-700">
-                  {followersCount} {followersCount !== 1 ? "followers" : "follower"}
+                  {followersCount}{" "}
+                  {followersCount !== 1 ? "followers" : "follower"}
                 </span>
               </div>
 
               {status !== "authenticated" || !loggedInUserId ? (
-                <Button 
-                  disabled 
+                <Button
+                  disabled
                   className="bg-gray-300 text-gray-500 rounded-full px-6 py-2 font-semibold"
                 >
                   Login to Follow
                 </Button>
               ) : isFollowing === null ? (
-                <Button 
-                  disabled 
+                <Button
+                  disabled
                   className="bg-gray-300 text-gray-500 rounded-full px-6 py-2 font-semibold"
                 >
                   Loading...
