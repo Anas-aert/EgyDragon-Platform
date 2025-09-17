@@ -10,7 +10,7 @@ export default function usePresence() {
   useEffect(() => {
     if (!userId) return;
 
-    // ✅ تحديث الحالة لما يدخل
+    // ✅ تحديث الحالة أونلاين
     const setOnline = async () => {
       try {
         await fetch("/api/getStates", {
@@ -23,23 +23,17 @@ export default function usePresence() {
       }
     };
 
-    // ❌ تحديث الحالة لما يخرج
-    const setOffline = async () => {
-      try {
-        await fetch("/api/getStates", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, isOnline: false }),
-        });
-      } catch (err) {
-        console.error("Failed to set offline:", err);
-      }
+    // ✅ تحديث الحالة أوفلاين باستخدام sendBeacon عند غلق الصفحة
+    const setOffline = () => {
+      const payload = JSON.stringify({ userId, isOnline: false });
+      const blob = new Blob([payload], { type: "application/json" });
+      navigator.sendBeacon("/api/getStates", blob);
     };
 
     // أول ما يدخل المستخدم
     setOnline();
 
-    // يحدث الـ lastSeen كل 30 ثانية
+    // تحديث الـ lastSeen كل 30 ثانية
     const interval = setInterval(() => {
       setOnline();
     }, 30000);
