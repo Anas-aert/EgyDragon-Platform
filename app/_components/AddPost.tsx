@@ -1,63 +1,83 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import { PostDialog } from "./dialog";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 export const AddNewPost = () => {
   const { data, status } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
 
-  const addPost = async (title: string, content: string) => {
-    if (!data?.user?.id) {
-      console.error("User not authenticated");
-      return;
-    } 
-
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("https://egydragon-anas.vercel.app/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title,
-          content: content,
-          authorId: data.user.id,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to add post");
+  const addPost = useCallback(
+    async (title: string, content: string) => {
+      if (!data?.user?.id) {
+        setErrorMessage("You must be logged in to add a post.");
+        return;
       }
 
-      const result = await res.json();
-      console.log("Post added successfully:", result);
+      setIsSubmitting(true);
+      setErrorMessage(null);
 
-      // يمكنك إضافة notification أو refresh للصفحة هنا
-      window.location.reload(); // أو استخدم router.refresh()
-    } catch (error) {
-      console.error("Error adding post:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      try {
+        const res = await fetch("/api/posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            content,
+            authorId: data.user.id,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to add post");
+        }
+
+        // ✅ Refresh the data instead of full reload
+        router.refresh();
+      } catch (error) {
+        console.error("Error adding post:", error);
+        setErrorMessage("Something went wrong. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [data?.user?.id, router]
+  );
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <div className="text-gray-500 text-sm">Checking session...</div>;
+  }
+
+  if (status !== "authenticated") {
+    return (
+      <div className="text-gray-600 italic text-sm">
+        Please log in to add a post.
+      </div>
+    );
   }
 
   return (
-    <PostDialog onSubmit={addPost}>
-      <span
-        className={`
-          bg-gradient-to-r duration-700 transition-all from-red-600 via-purple-600 to-blue-700 
-          hover:scale-110 hover:opacity-85 text-white hover:bg-red-900 rounded-xl 
-          cursor-pointer select-none p-5 text-xl
-          ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
-        `}
-      >
-        {isSubmitting ? "Adding Post..." : "Add Post"}
-      </span>
-    </PostDialog>
+    <div className="flex flex-col items-center">
+      <PostDialog onSubmit={addPost}>
+        <button
+          disabled={isSubmitting}
+          className={`bg-gradient-to-r from-red-600 via-purple-600 to-blue-700 
+            text-white rounded-xl px-6 py-3 text-lg font-semibold
+            transition-transform duration-300 ease-out
+            hover:scale-105 hover:opacity-90
+            ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          {isSubmitting ? "Adding Post..." : "Add Post"}
+        </button>
+      </PostDialog>
+
+      {errorMessage && (
+        <p className="mt-2 text-red-600 text-sm">{errorMessage}</p>
+      )}
+    </div>
   );
 };

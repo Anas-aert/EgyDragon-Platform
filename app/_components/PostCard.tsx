@@ -50,118 +50,121 @@ export default function PostCard({
   const [open, setOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const fetchFollowers = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/followers?id=${post.authorId}`, {
-        cache: "no-store",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setFollowersCount(data.followers);
-      }
-    } catch (err) {
-      console.error("Error fetching followers:", err);
-    }
-  }, [post.authorId]);
+  // ✅ دمج جلب المتابعين + حالة المتابعة في نفس الuseEffect
+  useEffect(() => {
+    if (!post.authorId) return;
 
-  const checkIfFollowing = useCallback(async () => {
-    if (!loggedInUserId) return;
-    try {
-      const res = await fetch(
-        `/api/followers/check?userId=${loggedInUserId}&postUserId=${post.authorId}`,
-        { cache: "no-store" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setIsFollowing(data.isFollowing);
+    const fetchData = async () => {
+      try {
+        const [followersRes, checkRes] = await Promise.all([
+          fetch(`https://egydragon-anas.vercel.app/api/followers?id=${post.authorId}`, { cache: "no-store" }),
+          loggedInUserId
+            ? fetch(
+                `https://egydragon-anas.vercel.app/api/followers/check?userId=${loggedInUserId}&postUserId=${post.authorId}`,
+                { cache: "no-store" }
+              )
+            : Promise.resolve(null),
+        ]);
+
+        if (followersRes.ok) {
+          const data = await followersRes.json();
+          setFollowersCount(data.followers);
+        }
+        if (checkRes && checkRes.ok) {
+          const data = await checkRes.json();
+          setIsFollowing(data.isFollowing);
+        }
+      } catch (err) {
+        console.error("Error fetching followers/check:", err);
       }
-    } catch (err) {
-      console.error("Error checking follow state:", err);
-    }
+    };
+
+    fetchData();
   }, [post.authorId, loggedInUserId]);
 
-  useEffect(() => {
-    fetchFollowers();
-    checkIfFollowing();
-  }, [fetchFollowers, checkIfFollowing]);
-
-  const plusFollower = async () => {
+  // ✅ Optimistic Updates بدل refetch
+  const plusFollower = useCallback(async () => {
     if (!loggedInUserId) return;
     try {
-      const res = await fetch(`/api/followers`, {
+      setIsFollowing(true);
+      setFollowersCount((prev) => prev + 1);
+
+      const res = await fetch(`https://egydragon-anas.vercel.app/api/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: loggedInUserId,
           postUserId: post.authorId,
         }),
-        cache: "no-store",
       });
 
-      if (res.ok) {
-        setIsFollowing(true);
-        fetchFollowers();
-      }
+      if (!res.ok) throw new Error("Follow request failed");
     } catch (err) {
-      console.error("Follow request failed:", err);
+      console.error(err);
+      setIsFollowing(false);
+      setFollowersCount((prev) => Math.max(prev - 1, 0));
     }
-  };
+  }, [loggedInUserId, post.authorId]);
 
-  const minusFollower = async () => {
+  const minusFollower = useCallback(async () => {
     if (!loggedInUserId) return;
     try {
-      const res = await fetch(`/api/followers`, {
+      setIsFollowing(false);
+      setFollowersCount((prev) => Math.max(prev - 1, 0));
+      setOpen(false);
+
+      const res = await fetch(`https://egydragon-anas.vercel.app/api/followers`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: loggedInUserId,
           postUserId: post.authorId,
         }),
-        cache: "no-store",
       });
 
-      if (res.ok) {
-        setIsFollowing(false);
-        setOpen(false);
-        fetchFollowers();
-      }
+      if (!res.ok) throw new Error("Unfollow request failed");
     } catch (err) {
-      console.error("Unfollow request failed:", err);
+      console.error(err);
+      setIsFollowing(true);
+      setFollowersCount((prev) => prev + 1);
     }
-  };
+  }, [loggedInUserId, post.authorId]);
 
   const formattedDate = useMemo(() => {
-    const date = new Date(post.createdAt);
-    return date.toLocaleDateString("en-US", {
+    return new Date(post.createdAt).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
   }, [post.createdAt]);
 
-  const [state, setState] = useState<{
-    isOnline: boolean;
-    lastSeen: string;
-  } | null>(null);
+  // ✅ تحسين getState (interval منظم)
+  const [state, setState] = useState<{ isOnline: boolean; lastSeen: string } | null>(null);
 
   useEffect(() => {
+    if (!author.id) return;
+
+    let isMounted = true;
     const fetchState = async () => {
       try {
-        const res = await fetch(`/api/getStates?userId=${author.id}`, {
+        const res = await fetch(`https://egydragon-anas.vercel.app/api/getStates?userId=${author.id}`, {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch state");
         const data = await res.json();
-        setState(data);
+        if (isMounted) setState(data);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchState();
-    const interval = setInterval(fetchState, 10000); // ⬅️ يحدث كل 10 ثواني
+    const interval = setInterval(fetchState, 10000);
 
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [author.id]);
 
   return (
@@ -196,7 +199,6 @@ export default function PostCard({
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
               )
             ) : (
-              // 👇 حالة التحميل أو الـ fallback
               <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gray-400 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
             )}
           </div>
@@ -222,17 +224,11 @@ export default function PostCard({
           </div>
 
           {status !== "authenticated" || !loggedInUserId ? (
-            <Button
-              disabled
-              className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
-            >
+            <Button disabled className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2">
               Login to Follow
             </Button>
           ) : isFollowing === null ? (
-            <Button
-              disabled
-              className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
-            >
+            <Button disabled className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2">
               Loading...
             </Button>
           ) : !isFollowing ? (
@@ -293,11 +289,7 @@ export default function PostCard({
 
       {/* Post Actions */}
       <div className="border-t border-gray-100">
-        <PostActions
-          postId={post.id}
-          initialLikes={post.likes}
-          initialComments={post.comments}
-        />
+        <PostActions postId={post.id} initialLikes={post.likes} initialComments={post.comments} />
       </div>
     </article>
   );

@@ -3,6 +3,8 @@
 import usePresence from "./usePresence";
 
 export default function PresenceManager() {
+  // ✅ Hook لازم يتنده هنا مباشرة
   usePresence();
-  return null; // 👈 مش محتاج يرندر أي UI
+
+  return null; // 👈 مفيش UI محتاج يتعرض
 }

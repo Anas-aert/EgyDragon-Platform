@@ -1,17 +1,17 @@
-"use client"; // مهم في app directory
+"use client";
 import { useEffect } from "react";
-
 
 export default function VignetteLoader() {
   useEffect(() => {
-    const s = document.createElement("script");
-    s.dataset.zone = "9884440";
-    s.src = "https://groleegni.net/vignette.min.js";
-    s.async = true;
-    document.body.appendChild(s);
+    if (document.getElementById("monetag-script")) return; // 🟢 منع التحميل مرتين
+    const script = document.createElement("script");
+    script.id = "monetag-script";
+    script.src = "//magnificentmanlyyeast.com/0d/8c/2e/0d8c2e5a015a7a0d381cfdfea680d473.js";
+    script.async = true;
+    document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(s);
+      script.remove();
     };
   }, []);
 

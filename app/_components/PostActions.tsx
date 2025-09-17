@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Heart, MessageCircle, User, Send, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import React from "react";
 
 type Comment = {
   id: string;
@@ -13,7 +14,7 @@ type Comment = {
   createdAt: string;
 };
 
-export default function PostActions({
+function PostActionsComponent({
   postId,
   initialLikes = [],
   initialComments = [],
@@ -35,12 +36,11 @@ export default function PostActions({
   const [commentLoading, setCommentLoading] = useState(false);
 
   const { data, status } = useSession();
-
-  // Get user info from session
   const userId = data?.user?.id as string | undefined;
   const userName = data?.user?.name;
   const userImage = data?.user?.image;
 
+  // optimize check if user liked
   useEffect(() => {
     if (!userId || status !== "authenticated") {
       setLiked(false);
@@ -49,7 +49,7 @@ export default function PostActions({
     setLiked(initialLikes.some((like) => like.userId === userId));
   }, [initialLikes, userId, status]);
 
-  const handleLike = async () => {
+  const handleLike = useCallback(async () => {
     if (loading || status !== "authenticated" || !userId) {
       alert("You should be signed in");
       return;
@@ -57,7 +57,7 @@ export default function PostActions({
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/posts/${postId}/like`, {
+      const res = await fetch(`https://egydragon-anas.vercel.app/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
@@ -65,13 +65,11 @@ export default function PostActions({
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to like post");
-      }
+      if (!res.ok) throw new Error(data.error || "Failed to like post");
 
       if (data.success) {
         setLiked(data.liked);
-        setLikesCount(data.liked ? likesCount + 1 : likesCount - 1);
+        setLikesCount((prev) => (data.liked ? prev + 1 : prev - 1));
       }
     } catch (err) {
       console.error("Like error:", err);
@@ -79,9 +77,9 @@ export default function PostActions({
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, status, userId, postId]);
 
-  const handleComment = async () => {
+  const handleComment = useCallback(async () => {
     if (status !== "authenticated" || !userId) {
       alert("You should be signed in");
       return;
@@ -91,7 +89,7 @@ export default function PostActions({
 
     setCommentLoading(true);
     try {
-      const res = await fetch(`/api/posts/${postId}/comment`, {
+      const res = await fetch(`https://egydragon-anas.vercel.app/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: commentText.trim() }),
@@ -99,13 +97,10 @@ export default function PostActions({
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to add comment");
-      }
+      if (!res.ok) throw new Error(data.message || "Failed to add comment");
 
       if (data.success && data.comment) {
-        setComments([...comments, data.comment]);
+        setComments((prev) => [...prev, data.comment]);
         setCommentText("");
         setShowComments(true);
       }
@@ -115,14 +110,69 @@ export default function PostActions({
     } finally {
       setCommentLoading(false);
     }
-  };
+  }, [status, userId, commentText, commentLoading, postId]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleComment();
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleComment();
+      }
+    },
+    [handleComment]
+  );
+
+  // memoize comments rendering
+  const renderedComments = useMemo(() => {
+    if (comments.length === 0) {
+      return (
+        <p className="text-center text-gray-500 py-8">
+          No comments yet. Be the first to comment!
+        </p>
+      );
     }
-  };
+
+    const dateFormatter = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return comments.map((c) => (
+      <div
+        key={c.id}
+        className="flex items-start space-x-3 bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
+      >
+        <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex-shrink-0">
+          {c.user?.image ? (
+            <Image
+              src={c.user?.image || "/default-avatar.png"}
+              alt={c.user?.name || "User"}
+              width={32}
+              height={32}
+              className="object-cover"
+            />
+          ) : (
+            <User className="w-4 h-4 text-white" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-2 mb-1">
+            <p className="text-sm font-semibold text-gray-900">
+              {c.user?.name || "Unknown user"}
+            </p>
+            <span className="text-xs text-gray-500">
+              {dateFormatter.format(new Date(c.createdAt))}
+            </span>
+          </div>
+          <p className="text-sm text-gray-700 leading-relaxed">{c.content}</p>
+        </div>
+      </div>
+    ));
+  }, [comments]);
 
   return (
     <div className="border-t border-gray-100">
@@ -152,7 +202,7 @@ export default function PostActions({
           </button>
 
           <button
-            onClick={() => setShowComments(!showComments)}
+            onClick={() => setShowComments((prev) => !prev)}
             className="flex cursor-pointer items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200"
           >
             <MessageCircle className="w-5 h-5" />
@@ -221,56 +271,11 @@ export default function PostActions({
             </div>
           )}
 
-          <div className="space-y-3">
-            {comments.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">
-                No comments yet. Be the first to comment!
-              </p>
-            ) : (
-              comments.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex items-start space-x-3 bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex-shrink-0">
-                    {c.user?.image ? (
-                      <Image
-                        src={c.user?.image || "/default-avatar.png"}
-                        alt={c.user?.name || "User"}
-                        width={32}
-                        height={32}
-                        className="object-cover"
-                      />
-                    ) : (
-                      <User className="w-4 h-4 text-white" />
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {c.user?.name || "Unknown user"}
-                      </p>
-                      <span className="text-xs text-gray-500">
-                        {new Date(c.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {c.content}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <div className="space-y-3">{renderedComments}</div>
         </div>
       )}
     </div>
   );
 }
+
+export default React.memo(PostActionsComponent);

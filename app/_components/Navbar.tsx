@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -15,6 +15,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import React from "react";
 
 interface User {
   email?: string;
@@ -22,7 +23,7 @@ interface User {
   name?: string;
 }
 
-export default function NavBar() {
+function NavBarComponent() {
   const { data, status } = useSession();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,18 +34,26 @@ export default function NavBar() {
 
   const user = data?.user;
 
-  // links
-  const navLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/contact", label: "Contact", icon: Contact },
-    { href: "/about", label: "About", icon: Info },
-  ];
+  // nav links ثابتة => useMemo
+  const navLinks = useMemo(
+    () => [
+      { href: "/", label: "Home", icon: Home },
+      { href: "/contact", label: "Contact", icon: Contact },
+      { href: "/about", label: "About", icon: Info },
+    ],
+    []
+  );
 
-  const isActiveLink = (href: string) => pathname === href;
+  const isActiveLink = useCallback(
+    (href: string) => pathname === href,
+    [pathname]
+  );
 
-  // close dropdown on outside click
+  // close dropdown on outside click + escape
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    if (!open) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(e.target as Node) &&
@@ -53,21 +62,19 @@ export default function NavBar() {
       ) {
         setOpen(false);
       }
-    }
+    };
 
-    function handleKeyDown(e: KeyboardEvent) {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
-    }
+    };
 
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
 
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("keydown", handleKeyDown);
-      };
-    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [open]);
 
   return (
@@ -79,16 +86,16 @@ export default function NavBar() {
         </Link>
 
         {/* Links (desktop) */}
-        <div className="hidden  md:flex space-x-6">
+        <div className="hidden md:flex space-x-6">
           {navLinks.map((link) => {
             const Icon = link.icon;
-            const isActive = isActiveLink(link.href);
+            const active = isActiveLink(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-                  isActive
+                  active
                     ? "bg-blue-600 text-white shadow-lg"
                     : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                 }`}
@@ -107,15 +114,14 @@ export default function NavBar() {
               <button
                 ref={userButtonRef}
                 className="flex items-center space-x-2 cursor-pointer focus:outline-none rounded-lg p-1"
-                onClick={() => setOpen(!open)}
+                onClick={() => setOpen((prev) => !prev)}
               >
                 <Image
-                  src={user.image ? user.image : "/default-avatar.png"}
+                  src={user.image || "/default-avatar.png"}
                   width={40}
                   height={40}
                   alt="Profile"
                   className="rounded-full"
-                  priority
                 />
                 <span className="font-medium hidden sm:hidden lg:block text-black">
                   {user.name}
@@ -169,7 +175,7 @@ export default function NavBar() {
         {/* Hamburger (mobile) */}
         <button
           className="md:hidden p-2 cursor-pointer text-black focus:outline-none rounded"
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => setMenuOpen((prev) => !prev)}
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
@@ -181,13 +187,13 @@ export default function NavBar() {
           <div className="flex flex-col space-y-2 p-4">
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = isActiveLink(link.href);
+              const active = isActiveLink(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-                    isActive
+                    active
                       ? "bg-blue-600 text-white shadow"
                       : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                   }`}
@@ -198,49 +204,11 @@ export default function NavBar() {
                 </Link>
               );
             })}
-
-            {/* User Section (mobile) */}
-            {/* {status === "authenticated" && user ? (
-              <>
-                <Link
-                  href="/profile"
-                  className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-100"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <User size={16} />
-                  <span>Profile</span>
-                </Link>
-                <Link
-                  href="/settings"
-                  className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-100"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Settings size={16} />
-                  <span>Settings</span>
-                </Link>
-                <button
-                  onClick={() => {
-                    signOut();
-                    setMenuOpen(false);
-                  }}
-                  className="flex items-center space-x-2 w-full text-left px-3 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600"
-                >
-                  <LogOut size={16} />
-                  <span>Sign out</span>
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/auth/MainAuth"
-                className="hover:scale-105 bg-blue-600 transition-all duration-300 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Sign In
-              </Link>
-            )} */}
           </div>
         </div>
       )}
     </nav>
   );
 }
+
+export default React.memo(NavBarComponent);

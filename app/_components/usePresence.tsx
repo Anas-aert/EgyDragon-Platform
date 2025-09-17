@@ -1,56 +1,59 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 
 export default function usePresence() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
+  // ✅ ref عشان نضمن إن نفس القيمة بتستخدم داخل event handlers
+  const userIdRef = useRef<string | null>(null);
+  userIdRef.current = userId ?? null;
+
   useEffect(() => {
     if (!userId) return;
 
-    // ✅ تحديث الحالة لما يدخل
-    const setOnline = async () => {
+    let isUnmounted = false;
+
+    const updatePresence = async (isOnline: boolean) => {
       try {
-        await fetch("/api/getStates", {
+        // ✅ نستخدم ref علشان مايبقاش فيه stale closure
+        if (!userIdRef.current) return;
+
+        await fetch("https://egydragon-anas.vercel.app/api/getStates", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, isOnline: true }),
+          body: JSON.stringify({ userId: userIdRef.current, isOnline }),
+          keepalive: true, // ✅ مهم جدًا للـ beforeunload (يدعم إرسال request قبل إغلاق الصفحة)
         });
       } catch (err) {
-        console.error("Failed to set online:", err);
+        if (!isUnmounted) {
+          console.error("Presence update failed:", err);
+        }
       }
     };
 
-    // ❌ تحديث الحالة لما يخرج
-    const setOffline = async () => {
-      try {
-        await fetch("/api/getStates", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, isOnline: false }),
-        });
-      } catch (err) {
-        console.error("Failed to set offline:", err);
-      }
-    };
+    // أول دخول
+    updatePresence(true);
 
-    // أول ما يدخل المستخدم
-    setOnline();
-
-    // يحدث الـ lastSeen كل 30 ثانية
+    // تحديث كل 30 ثانية
     const interval = setInterval(() => {
-      setOnline();
+      updatePresence(true);
     }, 30000);
 
-    // لما يقفل الصفحة أو يعمل refresh
-    window.addEventListener("beforeunload", setOffline);
+    // عند غلق الصفحة / refresh
+    const handleUnload = () => {
+      updatePresence(false);
+    };
+    window.addEventListener("beforeunload", handleUnload);
 
+    // cleanup
     return () => {
+      isUnmounted = true;
       clearInterval(interval);
-      setOffline();
-      window.removeEventListener("beforeunload", setOffline);
+      updatePresence(false);
+      window.removeEventListener("beforeunload", handleUnload);
     };
   }, [userId]);
 }
