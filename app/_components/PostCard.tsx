@@ -44,18 +44,17 @@ export default function PostCard({
 }) {
   const { data: session, status } = useSession();
   const loggedInUserId = session?.user?.id;
-  
+
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [open, setOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const fetchFollowers = useCallback(async () => {
     try {
-      const res = await fetch(
-        `/api/followers?id=${post.authorId}`,
-        { cache: "no-store" }
-      );
+      const res = await fetch(`/api/followers?id=${post.authorId}`, {
+        cache: "no-store",
+      });
       if (res.ok) {
         const data = await res.json();
         setFollowersCount(data.followers);
@@ -64,7 +63,7 @@ export default function PostCard({
       console.error("Error fetching followers:", err);
     }
   }, [post.authorId]);
-  
+
   const checkIfFollowing = useCallback(async () => {
     if (!loggedInUserId) return;
     try {
@@ -80,22 +79,25 @@ export default function PostCard({
       console.error("Error checking follow state:", err);
     }
   }, [post.authorId, loggedInUserId]);
-  
+
   useEffect(() => {
     fetchFollowers();
     checkIfFollowing();
   }, [fetchFollowers, checkIfFollowing]);
-  
+
   const plusFollower = async () => {
     if (!loggedInUserId) return;
     try {
       const res = await fetch(`/api/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: loggedInUserId, postUserId: post.authorId }),
+        body: JSON.stringify({
+          userId: loggedInUserId,
+          postUserId: post.authorId,
+        }),
         cache: "no-store",
       });
-      
+
       if (res.ok) {
         setIsFollowing(true);
         fetchFollowers();
@@ -104,17 +106,20 @@ export default function PostCard({
       console.error("Follow request failed:", err);
     }
   };
-  
+
   const minusFollower = async () => {
     if (!loggedInUserId) return;
     try {
       const res = await fetch(`/api/followers`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: loggedInUserId, postUserId: post.authorId }),
+        body: JSON.stringify({
+          userId: loggedInUserId,
+          postUserId: post.authorId,
+        }),
         cache: "no-store",
       });
-      
+
       if (res.ok) {
         setIsFollowing(false);
         setOpen(false);
@@ -124,7 +129,7 @@ export default function PostCard({
       console.error("Unfollow request failed:", err);
     }
   };
-  
+
   const formattedDate = useMemo(() => {
     const date = new Date(post.createdAt);
     return date.toLocaleDateString("en-US", {
@@ -133,36 +138,40 @@ export default function PostCard({
       year: "numeric",
     });
   }, [post.createdAt]);
-  
-  const [state, setState] = useState<{ isOnline: boolean; lastSeen: string } | null>(null);
+
+  const [state, setState] = useState<{
+    isOnline: boolean;
+    lastSeen: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchState = async () => {
       try {
-        const res = await fetch(
-          `https://egydragon-anas.vercel.app/api/getStates?userId=${author.id}`
-        );
-        if (!res.ok) {
-          console.log("Didn't Fetch")
-          throw new Error("Failed to fetch state");
-        }
+        const res = await fetch(`/api/getStates?userId=${author.id}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error("Failed to fetch state");
         const data = await res.json();
-        setState(data); // ⬅️ خزّنا النتيجة في state
+        setState(data);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchState();
+    const interval = setInterval(fetchState, 10000); // ⬅️ يحدث كل 10 ثواني
+
+    return () => clearInterval(interval);
   }, [author.id]);
+
   return (
     <article
-    className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] ${
-      isHovered ? "ring-2 ring-purple-400/40" : ""
+      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] ${
+        isHovered ? "ring-2 ring-purple-400/40" : ""
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      >
+    >
       {/* Author & Header */}
       <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -170,7 +179,7 @@ export default function PostCard({
             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
               {author?.image ? (
                 <Image
-                src={author.image}
+                  src={author.image}
                   alt={author?.name || "User"}
                   width={56}
                   height={56}
@@ -180,7 +189,16 @@ export default function PostCard({
                 <User className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               )}
             </div>
-            {state.isOnline == true ? <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-sm" ></div>:<div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm" ></div>}
+            {state ? (
+              state.isOnline ? (
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+              ) : (
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
+              )
+            ) : (
+              // 👇 حالة التحميل أو الـ fallback
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gray-400 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
+            )}
           </div>
 
           <div>
@@ -204,11 +222,17 @@ export default function PostCard({
           </div>
 
           {status !== "authenticated" || !loggedInUserId ? (
-            <Button disabled className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2">
+            <Button
+              disabled
+              className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
+            >
               Login to Follow
             </Button>
           ) : isFollowing === null ? (
-            <Button disabled className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2">
+            <Button
+              disabled
+              className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
+            >
               Loading...
             </Button>
           ) : !isFollowing ? (
@@ -237,7 +261,11 @@ export default function PostCard({
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex justify-end gap-3 mt-6">
-                  <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-xl px-5 py-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl px-5 py-2"
+                  >
                     Cancel
                   </Button>
                   <Button
