@@ -3,6 +3,7 @@ import Image from "next/image";
 import { authOptions } from "../lib/nextAuth";
 import { cookies } from "next/headers"; // ✅ إضافة مهمة
 import { AddNewPost } from "../_components/AddPost";
+import { resolve } from "path";
 
 
 async function GetPosts() {
@@ -12,7 +13,7 @@ async function GetPosts() {
   const res = await fetch("https://egydragon-anas.vercel.app/api/userPosts", {
     cache: "no-store",
     headers: {
-      Cookie: cookieStore.toString(),
+      Cookie: resolve(cookieStore.toString()),
     },
   });
 
