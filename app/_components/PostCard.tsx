@@ -145,6 +145,8 @@ export default function PostCard({
   } | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchState = async () => {
       try {
         const res = await fetch(`/api/getStates?userId=${author.id}`, {
@@ -152,16 +154,19 @@ export default function PostCard({
         });
         if (!res.ok) throw new Error("Failed to fetch state");
         const data = await res.json();
-        setState(data);
+        if (isMounted) setState(data);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchState();
-    const interval = setInterval(fetchState, 10000); // ⬅️ يحدث كل 10 ثواني
+    const interval = setInterval(fetchState, 10000);
 
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [author.id]);
 
   return (

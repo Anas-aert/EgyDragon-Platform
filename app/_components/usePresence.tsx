@@ -10,41 +10,28 @@ export default function usePresence() {
   useEffect(() => {
     if (!userId) return;
 
-    // ✅ تحديث الحالة أونلاين
-    const setOnline = async () => {
+    const updatePresence = async () => {
       try {
         await fetch("/api/getStates", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, isOnline: true }),
+          body: JSON.stringify({ userId, lastSeen: new Date().toISOString() }),
         });
       } catch (err) {
-        console.error("Failed to set online:", err);
+        console.error("Failed to update presence:", err);
       }
     };
 
-    // ✅ تحديث الحالة أوفلاين باستخدام sendBeacon عند غلق الصفحة
-    const setOffline = () => {
-      const payload = JSON.stringify({ userId, isOnline: false });
-      const blob = new Blob([payload], { type: "application/json" });
-      navigator.sendBeacon("/api/getStates", blob);
-    };
-
     // أول ما يدخل المستخدم
-    setOnline();
+    updatePresence();
 
-    // تحديث الـ lastSeen كل 30 ثانية
+    // تحديث كل 30 ثانية
     const interval = setInterval(() => {
-      setOnline();
+      updatePresence();
     }, 30000);
-
-    // لما يقفل الصفحة أو يعمل refresh
-    window.addEventListener("beforeunload", setOffline);
 
     return () => {
       clearInterval(interval);
-      setOffline();
-      window.removeEventListener("beforeunload", setOffline);
     };
   }, [userId]);
 }
