@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
       // إضافة النطاق الجديد من الخطأ
       { protocol: "https", hostname: "fleraprt.com" },
       { protocol: "https", hostname: "*.fleraprt.com" },
+      // إضافة نطاقات otieu
+      { protocol: "https", hostname: "otieu.com" },
+      { protocol: "https", hostname: "*.otieu.com" },
     ],
   },
   eslint: {
@@ -34,10 +37,8 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value: `
+              default-src 'self';
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
-                https://t.me/
-                https://web.telegram.org
-                https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
@@ -51,12 +52,11 @@ const nextConfig: NextConfig = {
                 https://tzegilo.com
                 https://*.tzegilo.com
                 https://fleraprt.com
-                https://*.fleraprt.com;
-                
+                https://*.fleraprt.com
+                https://otieu.com
+                https://*.otieu.com;
+
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
-                https://t.me/
-                https://web.telegram.org
-                https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
@@ -70,12 +70,11 @@ const nextConfig: NextConfig = {
                 https://tzegilo.com
                 https://*.tzegilo.com
                 https://fleraprt.com
-                https://*.fleraprt.com;
-                
+                https://*.fleraprt.com
+                https://otieu.com
+                https://*.otieu.com;
+
               connect-src 'self'
-                https://t.me/
-                https://web.telegram.org
-                https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://*.google.com
                 https://*.g.doubleclick.net
@@ -92,20 +91,30 @@ const nextConfig: NextConfig = {
                 https://tzegilo.com
                 https://*.tzegilo.com
                 https://fleraprt.com
-                https://*.fleraprt.com;
+                https://*.fleraprt.com
+                https://otieu.com
+                https://*.otieu.com;
 
               frame-src 'self'
-                https://web.telegram.org
-                https://otieu.com/4/9886165
                 https://web.telegram.org
                 https://t.me
                 https://googleads.g.doubleclick.net
                 https://www.google.com
                 https://ep2.adtrafficquality.google
-                https://pagead2.googlesyndication.com;
-            `
-              .replace(/\s{2,}/g, " ")
-              .trim(),
+                https://pagead2.googlesyndication.com
+                https://otieu.com
+                https://*.otieu.com;
+
+              frame-ancestors 'self'
+                https://web.telegram.org;
+
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' data: https:;
+              font-src 'self';
+              object-src 'none';
+              base-uri 'self';
+              form-action 'self';
+            `.replace(/\s{2,}/g, " ").trim(),
           },
           {
             key: "X-Frame-Options",
