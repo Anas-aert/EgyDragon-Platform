@@ -35,6 +35,8 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
+                https://t.me/
+                https://web.telegram.org
                 https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
@@ -50,8 +52,10 @@ const nextConfig: NextConfig = {
                 https://*.tzegilo.com
                 https://fleraprt.com
                 https://*.fleraprt.com;
-
+                
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
+                https://t.me/
+                https://web.telegram.org
                 https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
@@ -67,8 +71,10 @@ const nextConfig: NextConfig = {
                 https://*.tzegilo.com
                 https://fleraprt.com
                 https://*.fleraprt.com;
-
+                
               connect-src 'self'
+                https://t.me/
+                https://web.telegram.org
                 https://otieu.com/4/9886165
                 https://*.vercel-insights.com
                 https://*.google.com
@@ -89,6 +95,7 @@ const nextConfig: NextConfig = {
                 https://*.fleraprt.com;
 
               frame-src 'self'
+                https://web.telegram.org
                 https://otieu.com/4/9886165
                 https://web.telegram.org
                 https://t.me
