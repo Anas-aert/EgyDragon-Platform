@@ -143,6 +143,7 @@ export default function PostCard({
           `https://egydragon-anas.vercel.app/api/getStates?userId=${author.id}`
         );
         if (!res.ok) {
+          console.log("Didn't Fetch")
           throw new Error("Failed to fetch state");
         }
         const data = await res.json();
@@ -179,7 +180,7 @@ export default function PostCard({
                 <User className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               )}
             </div>
-            {state.isOnline ? <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-sm" ></div>:<div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm" ></div>}
+            {state.isOnline == true ? <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-sm" ></div>:<div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm" ></div>}
           </div>
 
           <div>
