@@ -5,6 +5,9 @@ import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
 import VignetteLoader from "./_components/ads";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -201,7 +204,7 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
-
+        <SpeedInsights/>
         <Analytics />
       </body>
     </html>
