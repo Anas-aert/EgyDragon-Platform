@@ -5,9 +5,8 @@ import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
 import VignetteLoader from "./_components/ads";
-import { SpeedInsights } from "@vercel/speed-insights/next"
-
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import PresenceManager from "./_components/precense";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,10 +85,10 @@ export default async function RootLayout({
         />
         {/* 
         <script
-          src="https://fpyf8.com/88/tag.min.js"
-          data-zone="170492"
-          async
-          data-cfasync="false"
+        src="https://fpyf8.com/88/tag.min.js"
+        data-zone="170492"
+        async
+        data-cfasync="false"
         ></script> */}
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -139,11 +138,12 @@ export default async function RootLayout({
              text-white font-semibold shadow-md hover:from-blue-700 hover:to-indigo-700 
              transition-all duration-300 transform hover:scale-105"
         >
-           Click Here
+          Click Here
         </a>
 
         <VignetteLoader />
         <NextAuthProvider>
+          <PresenceManager />
           <NavBar />
           <main className="flex-grow">{children}</main>
         </NextAuthProvider>
@@ -204,7 +204,7 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
-        <SpeedInsights/>
+        <SpeedInsights />
         <Analytics />
       </body>
     </html>
