@@ -144,6 +144,7 @@ export default function PostCard({
     lastSeen: string;
   } | null>(null);
 
+  // presence logic
   useEffect(() => {
     let isMounted = true;
 
@@ -161,11 +162,23 @@ export default function PostCard({
     };
 
     fetchState();
-    const interval = setInterval(fetchState, 10000);
+    const interval = setInterval(fetchState, 30000); // backup كل 30 ثانية بدل 3
+
+    // BroadcastChannel realtime updates
+    const channel = new BroadcastChannel("presence");
+    channel.onmessage = (event) => {
+      if (event.data.userId === author.id) {
+        setState({
+          isOnline: event.data.isOnline,
+          lastSeen: event.data.lastSeen,
+        });
+      }
+    };
 
     return () => {
       isMounted = false;
       clearInterval(interval);
+      channel.close();
     };
   }, [author.id]);
 
@@ -201,7 +214,6 @@ export default function PostCard({
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
               )
             ) : (
-              // 👇 حالة التحميل أو الـ fallback
               <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gray-400 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
             )}
           </div>
