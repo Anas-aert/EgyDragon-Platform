@@ -18,12 +18,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.vouphoanooque.net" },
       { protocol: "https", hostname: "tzegilo.com" },
       { protocol: "https", hostname: "*.tzegilo.com" },
-      // إضافة النطاق الجديد من الخطأ
       { protocol: "https", hostname: "fleraprt.com" },
       { protocol: "https", hostname: "*.fleraprt.com" },
-      // إضافة نطاقات otieu
       { protocol: "https", hostname: "otieu.com" },
       { protocol: "https", hostname: "*.otieu.com" },
+      // النطاق الجديد
+      { protocol: "https", hostname: "magnificentmanlyyeast.com" },
+      { protocol: "https", hostname: "*.magnificentmanlyyeast.com" },
     ],
   },
   eslint: {
@@ -38,6 +39,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
               default-src 'self';
+              
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
@@ -54,7 +56,9 @@ const nextConfig: NextConfig = {
                 https://fleraprt.com
                 https://*.fleraprt.com
                 https://otieu.com
-                https://*.otieu.com;
+                https://*.otieu.com
+                https://magnificentmanlyyeast.com
+                https://*.magnificentmanlyyeast.com;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
@@ -72,7 +76,9 @@ const nextConfig: NextConfig = {
                 https://fleraprt.com
                 https://*.fleraprt.com
                 https://otieu.com
-                https://*.otieu.com;
+                https://*.otieu.com
+                https://magnificentmanlyyeast.com
+                https://*.magnificentmanlyyeast.com;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -93,7 +99,9 @@ const nextConfig: NextConfig = {
                 https://fleraprt.com
                 https://*.fleraprt.com
                 https://otieu.com
-                https://*.otieu.com;
+                https://*.otieu.com
+                https://magnificentmanlyyeast.com
+                https://*.magnificentmanlyyeast.com;
 
               frame-src 'self'
                 https://web.telegram.org

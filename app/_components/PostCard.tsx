@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { Calendar, User, Users, Heart } from "lucide-react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Calendar, User, Users } from "lucide-react";
 import PostActions from "./PostActions";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import {
   Dialog,
@@ -14,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import useSWR from "swr";
 
 type PostFromAPI = {
   id: string;
@@ -43,73 +43,89 @@ export default function PostCard({
   post: PostFromAPI;
   author: { id: string; name?: string; image?: string };
 }) {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const loggedInUserId = session?.user?.id;
+
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+  const [followersCount, setFollowersCount] = useState<number>(0);
   const [open, setOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // fetcher للـ SWR
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  // 📌 fetch helper
+  const fetchWithAbort = useCallback(async (url: string, options?: RequestInit) => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const res = await fetch(url, { ...options, signal });
+    if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+    return res.json();
+  }, []);
 
-  // 🔹 SWR بيجيب followersCount + isFollowing مع بعض
-  const { data: followData, mutate } = useSWR(
-    loggedInUserId
-      ? `/api/followers/summary?viewerId=${loggedInUserId}&authorId=${post.authorId}`
-      : null,
-    fetcher,
-    { refreshInterval: 30000 }
-  );
+  // 📌 followers + follow state
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const [followers, followState] = await Promise.all([
+          fetchWithAbort(`/api/followers?id=${post.authorId}`, { cache: "no-store" }),
+          loggedInUserId
+            ? fetchWithAbort(
+                `/api/followers/check?userId=${loggedInUserId}&postUserId=${post.authorId}`,
+                { cache: "no-store" }
+              )
+            : Promise.resolve(null),
+        ]);
+        if (!active) return;
+        setFollowersCount(followers.followers);
+        if (followState) setIsFollowing(followState.isFollowing);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [post.authorId, loggedInUserId, fetchWithAbort]);
 
-  const followersCount = followData?.followers ?? 0;
-  const isFollowing = followData?.isFollowing ?? false;
-
-  // presence state
-  const { data: presence } = useSWR(
-    `/api/getStates?userId=${author.id}`,
-    fetcher,
-    { refreshInterval: 30000 }
-  );
-
-  // follow action (optimistic update)
-  const plusFollower = async () => {
+  // 📌 follow / unfollow
+  const plusFollower = useCallback(async () => {
     if (!loggedInUserId) return;
-    mutate({ ...followData, isFollowing: true, followers: followersCount + 1 }, false);
     try {
-      await fetch(`/api/followers`, {
+      const res = await fetch(`/api/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: loggedInUserId,
-          postUserId: post.authorId,
-        }),
+        body: JSON.stringify({ userId: loggedInUserId, postUserId: post.authorId }),
+        cache: "no-store",
       });
-      mutate(); // revalidate من السيرفر
+      if (res.ok) {
+        setIsFollowing(true);
+        setFollowersCount((c) => c + 1);
+      }
     } catch (err) {
       console.error("Follow request failed:", err);
-      mutate(); // roll back لو فشلت
     }
-  };
+  }, [loggedInUserId, post.authorId]);
 
-  // unfollow action (optimistic update)
-  const minusFollower = async () => {
+  const minusFollower = useCallback(async () => {
     if (!loggedInUserId) return;
-    mutate({ ...followData, isFollowing: false, followers: followersCount - 1 }, false);
     try {
-      await fetch(`/api/followers`, {
+      const res = await fetch(`/api/followers`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: loggedInUserId,
-          postUserId: post.authorId,
-        }),
+        body: JSON.stringify({ userId: loggedInUserId, postUserId: post.authorId }),
+        cache: "no-store",
       });
-      mutate();
-      setOpen(false);
+      if (res.ok) {
+        setIsFollowing(false);
+        setFollowersCount((c) => Math.max(0, c - 1));
+        setOpen(false);
+      }
     } catch (err) {
       console.error("Unfollow request failed:", err);
-      mutate();
     }
-  };
+  }, [loggedInUserId, post.authorId]);
 
+  // 📌 formatted date
   const formattedDate = useMemo(() => {
     const date = new Date(post.createdAt);
     return date.toLocaleDateString("en-US", {
@@ -119,135 +135,115 @@ export default function PostCard({
     });
   }, [post.createdAt]);
 
+  // 📌 presence logic
+  const [state, setState] = useState<{ isOnline: boolean; lastSeen: string } | null>(null);
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchState = async () => {
+      if (document.hidden) return;
+      try {
+        const res = await fetch(`/api/getStates?userId=${author.id}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch state");
+        const data = await res.json();
+        if (isMounted) setState(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchState();
+    const interval = setInterval(fetchState, 30000);
+
+    const channel = new BroadcastChannel("presence");
+    channel.onmessage = (event) => {
+      if (event.data.userId === author.id) {
+        setState({ isOnline: event.data.isOnline, lastSeen: event.data.lastSeen });
+      }
+    };
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      channel.close();
+    };
+  }, [author.id]);
+
   return (
     <article
-      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01]`}
+      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] ${
+        isHovered ? "ring-2 ring-purple-400/40" : ""
+      }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Author & Header */}
-      <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
+      <div className="p-6">
+        {/* author */}
+        <div className="flex items-center gap-4 mb-6">
           <div className="relative">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
-              {author?.image ? (
-                <Image
-                  src={author.image}
-                  alt={author?.name || "User"}
-                  width={56}
-                  height={56}
-                  className="rounded-2xl object-cover"
-                />
-              ) : (
-                <User className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-              )}
-            </div>
-            {presence ? (
-              presence.isOnline ? (
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-              ) : (
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
-              )
-            ) : (
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gray-400 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
+            <Image
+              src={author?.image || "/default-avatar.png"}
+              alt={author?.name || "User"}
+              width={48}
+              height={48}
+              className="rounded-full border-2 border-purple-200 group-hover:border-purple-400 transition-colors"
+            />
+            {state?.isOnline && (
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
             )}
           </div>
-
           <div>
-            <h3 className="font-bold text-gray-800 text-base sm:text-lg group-hover:text-purple-600 transition-colors">
-              {author?.name || "Unknown User"}
-            </h3>
-            <div className="flex items-center text-xs sm:text-sm text-gray-500 gap-1">
-              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-              <time className="font-medium">{formattedDate}</time>
-            </div>
+            <h3 className="font-semibold text-gray-900">{author?.name || "مستخدم"}</h3>
+            <p className="text-sm text-gray-500 flex items-center gap-1">
+              <Calendar size={14} /> {formattedDate}
+            </p>
+            {state && !state.isOnline && (
+              <p className="text-xs text-gray-400">Last seen: {state.lastSeen}</p>
+            )}
           </div>
-        </div>
-
-        {/* Follow Section */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full">
-            <Users className="w-4 h-4 text-gray-600" />
-            <span className="text-sm font-semibold text-gray-700">
-              {followersCount} {followersCount !== 1 ? "followers" : "follower"}
-            </span>
-          </div>
-
-          {status !== "authenticated" || !loggedInUserId ? (
-            <Button
-              disabled
-              className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
-            >
-              Login to Follow
-            </Button>
-          ) : followData === undefined ? (
-            <Button
-              disabled
-              className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
-            >
-              Loading...
-            </Button>
-          ) : !isFollowing ? (
-            <Button
-              onClick={plusFollower}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full px-5 sm:px-8 py-2 font-semibold shadow hover:scale-105 transition-transform"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Follow
-            </Button>
-          ) : (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-gray-400 hover:bg-gray-500 text-white rounded-full px-5 sm:px-8 py-2 font-semibold shadow hover:scale-105 transition-transform">
-                  <Heart className="w-4 h-4 mr-2 fill-current" />
-                  Following
+          {loggedInUserId !== author.id && (
+            <div className="ml-auto">
+              {isFollowing ? (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="bg-purple-50 text-purple-600 hover:bg-purple-100">
+                      Following
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Unfollow {author?.name}?</DialogTitle>
+                      <DialogDescription>
+                        هل تريد إلغاء متابعة هذا المستخدم؟
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Button variant="destructive" onClick={minusFollower}>
+                      Unfollow
+                    </Button>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Button onClick={plusFollower} size="sm" className="bg-purple-500 text-white hover:bg-purple-600">
+                  Follow
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="rounded-2xl border-0 shadow-2xl bg-white/95 backdrop-blur-xl">
-                <DialogHeader>
-                  <DialogTitle className="text-lg sm:text-xl font-bold text-gray-800">
-                    Unfollow {author?.name || "this user"}?
-                  </DialogTitle>
-                  <DialogDescription className="text-gray-600 text-sm sm:text-base">
-                    You will no longer see their posts in your feed.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex justify-end gap-3 mt-6">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setOpen(false)}
-                    className="rounded-xl px-5 py-2"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={minusFollower}
-                    className="bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl px-5 py-2 font-semibold shadow"
-                  >
-                    Unfollow
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+              )}
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Post Content */}
-      <div className="px-6 sm:px-8 py-6">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight group-hover:text-purple-700 transition-colors">
-          {post.title}
-        </h2>
-        <p className="text-gray-700 text-sm sm:text-base leading-relaxed break-words line-clamp-6">
-          {post.content}
-        </p>
-      </div>
+        {/* post */}
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{post.title}</h2>
+        <p className="text-gray-700 mb-4">{post.content}</p>
 
-      {/* Post Actions */}
-      <div className="border-t border-gray-100">
-        <PostActions
-          postId={post.id}
-          initialLikes={post.likes}
-          initialComments={post.comments}
-        />
+        {/* actions */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 text-gray-500 text-sm">
+            <span className="flex items-center gap-1">
+              <Users size={16} /> {followersCount}
+            </span>
+          </div>
+          <PostActions postId={post.id} initialLikes={post.likes} initialComments={post.comments} />
+        </div>
       </div>
     </article>
   );
