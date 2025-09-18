@@ -1,39 +1,63 @@
-"use client";
+import { NextResponse } from "next/server";
+import prisma from "@/prisma/client";
 
-import { useEffect, useState } from "react";
+// ✅ GET => يرجع حالة المستخدم (isOnline + lastSeen)
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
 
-type UserState = {
-  id: string;
-  isOnline: boolean;
-  lastSeen: string;
-};
+    if (!userId) {
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 }
+      );
+    }
 
-export default function useUserState(userId: string) {
-  const [state, setState] = useState<UserState | null>(null);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, isOnline: true, lastSeen: true },
+    });
 
-  useEffect(() => {
-    if (!userId) return;
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
 
-    const fetchState = async () => {
-      try {
-        const res = await fetch(`/api/getStates?userId=${userId}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch state");
-        const data = await res.json();
-        setState(data);
-      } catch (err) {
-        console.error("Error fetching user state:", err);
-      }
-    };
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("GET /api/getStates error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
 
-    // أول تحميل
-    fetchState();
+// ✅ PUT => يحدث حالة المستخدم (isOnline + lastSeen)
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { userId, isOnline } = body;
 
-    // يحدث كل 10 ثواني
-    const interval = setInterval(fetchState, 10_000);
-    return () => clearInterval(interval);
-  }, [userId]);
+    if (!userId) {
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 }
+      );
+    }
 
-  return state;
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isOnline,
+        lastSeen: new Date(),
+      },
+      select: { id: true, isOnline: true, lastSeen: true },
+    });
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("PUT /api/getStates error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
