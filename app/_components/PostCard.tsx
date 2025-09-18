@@ -189,7 +189,10 @@ export default function PostCard({
               className="rounded-full border-2 border-purple-200 group-hover:border-purple-400 transition-colors"
             />
             {state?.isOnline && (
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></span>
+            )}
+            {!state?.isOnline && (
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-red-400 border-2 border-white rounded-full"></span>
             )}
           </div>
           <div>
