@@ -143,7 +143,6 @@ export default async function RootLayout({
 
         <VignetteLoader />
         <NextAuthProvider>
-          <PresenceManager />
           <NavBar />
           <main className="flex-grow">{children}</main>
         </NextAuthProvider>
@@ -204,6 +203,7 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
+        <PresenceManager />
         <SpeedInsights />
         <Analytics />
       </body>

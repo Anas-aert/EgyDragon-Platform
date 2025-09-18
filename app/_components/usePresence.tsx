@@ -19,6 +19,7 @@ export default function usePresence() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, isOnline }),
         });
+
         channel.postMessage({
           userId,
           isOnline,
@@ -29,33 +30,24 @@ export default function usePresence() {
       }
     };
 
-    // أول ما يدخل المستخدم → Online
+    // 🟢 أول ما يفتح
     updatePresence(true);
 
-    // تحديث كل 30 ثانية → يحافظ على Online
-    const interval = setInterval(() => {
-      updatePresence(true);
-    }, 30_000);
+    // 🔴 لو خرج من الصفحة أو قفل التبويب
+    const handleUnload = () => updatePresence(false);
+    window.addEventListener("beforeunload", handleUnload);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        updatePresence(false);
+      } else {
+        updatePresence(true);
+      }
+    });
 
-    // لو قفل الصفحة → Offline
-    const handleBeforeUnload = () => {
-      navigator.sendBeacon(
-        "/api/getStates",
-        JSON.stringify({ userId, isOnline: false })
-      );
-      channel.postMessage({
-        userId,
-        isOnline: false,
-        lastSeen: new Date().toISOString(),
-      });
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    // تنظيف
+    // cleanup
     return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      updatePresence(false);
+      handleUnload(); // يحدث آخر مرة
+      window.removeEventListener("beforeunload", handleUnload);
       channel.close();
     };
   }, [userId]);
