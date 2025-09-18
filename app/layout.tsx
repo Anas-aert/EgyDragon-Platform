@@ -145,6 +145,7 @@ export default async function RootLayout({
         <NextAuthProvider>
           <NavBar />
           <main className="flex-grow">{children}</main>
+          <PresenceManager />
         </NextAuthProvider>
 
         {/* Improved Footer */}
@@ -203,7 +204,6 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
-        <PresenceManager />
         <SpeedInsights />
         <Analytics />
       </body>
