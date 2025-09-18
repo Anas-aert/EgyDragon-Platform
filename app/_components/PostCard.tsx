@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Calendar, User, Users, Heart } from "lucide-react";
 import PostActions from "./PostActions";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import useSWR from "swr";
 
 type PostFromAPI = {
   id: string;
@@ -44,89 +45,68 @@ export default function PostCard({
 }) {
   const { data: session, status } = useSession();
   const loggedInUserId = session?.user?.id;
-
-  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
-  const [followersCount, setFollowersCount] = useState<number>(0);
   const [open, setOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
-  const fetchFollowers = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/followers?id=${post.authorId}`, {
-        cache: "no-store",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setFollowersCount(data.followers);
-      }
-    } catch (err) {
-      console.error("Error fetching followers:", err);
-    }
-  }, [post.authorId]);
+  // fetcher للـ SWR
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const checkIfFollowing = useCallback(async () => {
-    if (!loggedInUserId) return;
-    try {
-      const res = await fetch(
-        `/api/followers/check?userId=${loggedInUserId}&postUserId=${post.authorId}`,
-        { cache: "no-store" }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setIsFollowing(data.isFollowing);
-      }
-    } catch (err) {
-      console.error("Error checking follow state:", err);
-    }
-  }, [post.authorId, loggedInUserId]);
+  // 🔹 SWR بيجيب followersCount + isFollowing مع بعض
+  const { data: followData, mutate } = useSWR(
+    loggedInUserId
+      ? `/api/followers/summary?viewerId=${loggedInUserId}&authorId=${post.authorId}`
+      : null,
+    fetcher,
+    { refreshInterval: 30000 }
+  );
 
-  useEffect(() => {
-    fetchFollowers();
-    checkIfFollowing();
-  }, [fetchFollowers, checkIfFollowing]);
+  const followersCount = followData?.followers ?? 0;
+  const isFollowing = followData?.isFollowing ?? false;
 
+  // presence state
+  const { data: presence } = useSWR(
+    `/api/getStates?userId=${author.id}`,
+    fetcher,
+    { refreshInterval: 30000 }
+  );
+
+  // follow action (optimistic update)
   const plusFollower = async () => {
     if (!loggedInUserId) return;
+    mutate({ ...followData, isFollowing: true, followers: followersCount + 1 }, false);
     try {
-      const res = await fetch(`/api/followers`, {
+      await fetch(`/api/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: loggedInUserId,
           postUserId: post.authorId,
         }),
-        cache: "no-store",
       });
-
-      if (res.ok) {
-        setIsFollowing(true);
-        fetchFollowers();
-      }
+      mutate(); // revalidate من السيرفر
     } catch (err) {
       console.error("Follow request failed:", err);
+      mutate(); // roll back لو فشلت
     }
   };
 
+  // unfollow action (optimistic update)
   const minusFollower = async () => {
     if (!loggedInUserId) return;
+    mutate({ ...followData, isFollowing: false, followers: followersCount - 1 }, false);
     try {
-      const res = await fetch(`/api/followers`, {
+      await fetch(`/api/followers`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: loggedInUserId,
           postUserId: post.authorId,
         }),
-        cache: "no-store",
       });
-
-      if (res.ok) {
-        setIsFollowing(false);
-        setOpen(false);
-        fetchFollowers();
-      }
+      mutate();
+      setOpen(false);
     } catch (err) {
       console.error("Unfollow request failed:", err);
+      mutate();
     }
   };
 
@@ -139,56 +119,9 @@ export default function PostCard({
     });
   }, [post.createdAt]);
 
-  const [state, setState] = useState<{
-    isOnline: boolean;
-    lastSeen: string;
-  } | null>(null);
-
-  // presence logic
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchState = async () => {
-      try {
-        const res = await fetch(`/api/getStates?userId=${author.id}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch state");
-        const data = await res.json();
-        if (isMounted) setState(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchState();
-    const interval = setInterval(fetchState, 30000); // backup كل 30 ثانية بدل 3
-
-    // BroadcastChannel realtime updates
-    const channel = new BroadcastChannel("presence");
-    channel.onmessage = (event) => {
-      if (event.data.userId === author.id) {
-        setState({
-          isOnline: event.data.isOnline,
-          lastSeen: event.data.lastSeen,
-        });
-      }
-    };
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-      channel.close();
-    };
-  }, [author.id]);
-
   return (
     <article
-      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] ${
-        isHovered ? "ring-2 ring-purple-400/40" : ""
-      }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`group relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01]`}
     >
       {/* Author & Header */}
       <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -207,8 +140,8 @@ export default function PostCard({
                 <User className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               )}
             </div>
-            {state ? (
-              state.isOnline ? (
+            {presence ? (
+              presence.isOnline ? (
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
               ) : (
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
@@ -245,7 +178,7 @@ export default function PostCard({
             >
               Login to Follow
             </Button>
-          ) : isFollowing === null ? (
+          ) : followData === undefined ? (
             <Button
               disabled
               className="bg-gray-200 text-gray-500 rounded-full px-4 sm:px-6 py-2"
