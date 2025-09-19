@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { AddNewPost } from "@/app/_components/AddPost";
 import PostCard from "@/app/_components/PostCard";
 
+// تحديد أنواع البيانات المستخدمة
 type Like = {
   id: string;
   userId: string;
@@ -36,17 +37,27 @@ export type Post = {
   comments: Comment[];
 };
 
-// 🟢 دالة تجيب بوستات يوزر معين
-async function fetchPosts(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const cookieStore = await cookies(); // ✅ من غير await
+// تحديد أنواع الـ props التي يستقبلها المكون
+type ProfileProps = {
+  params: {
+    id: string;
+  };
+};
+
+// 🟢 المكون أصبح الآن Async Component لجلب البيانات من الخادم
+const Profile = async ({ params }: ProfileProps) => {
+  const session = await getServerSession(authOptions);
+  const isOwner = session?.user?.id === params.id;
+  const userId = params.id;
+
+  // 🟢 استخراج الكوكيز مباشرة داخل المكون
+  const cookieStore = await cookies();
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
+  // 🟢 جلب البوستات مباشرة داخل المكون
   const res = await fetch(
     `https://egydragon-anas.vercel.app/api/userPosts/${userId}`,
     {
@@ -55,15 +66,7 @@ async function fetchPosts(
     }
   );
 
-  if (!res.ok) return [];
-  return (await res.json()) as Post[];
-}
-
-const Profile = async ({ params }: { params: { id: string } }) => {
-  const session = await getServerSession(authOptions);
-  const isOwner = session?.user?.id === params.id;
-
-  const posts = await fetchPosts(params.id);
+  const posts: Post[] = res.ok ? await res.json() : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
