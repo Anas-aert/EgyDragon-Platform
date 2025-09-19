@@ -37,7 +37,10 @@ export type Post = {
 };
 
 // 🟢 دالة تجيب بوستات يوزر معين
-async function fetchPosts(userId: string): Promise<Post[]> {
+async function fetchPosts(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const cookieStore = await cookies(); // ✅ من غير await
   const cookieHeader = cookieStore
     .getAll()
@@ -118,7 +121,8 @@ const Profile = async ({ params }: { params: { id: string } }) => {
             {posts.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-xl text-gray-500">
-                  No posts found. {isOwner && "Start by creating your first post!"}
+                  No posts found.{" "}
+                  {isOwner && "Start by creating your first post!"}
                 </div>
               </div>
             ) : (
