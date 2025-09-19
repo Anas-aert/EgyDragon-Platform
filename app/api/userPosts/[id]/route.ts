@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 import schema from "./schema";
 
-export async function GET({ params }: { params: { id: string } }) {
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   const idCheck = schema.safeParse({ id: params.id });
 
   if (!idCheck.success) {
