@@ -7,7 +7,7 @@ export default function AdsenseScript() {
   const pathname = usePathname();
 
   // الصفحات اللي عايز تمنع فيها AdSense
-  const blockAdsenseRoutes = ["/settings", "/login", "/register"];
+  const blockAdsenseRoutes = ["/settings", "/login", "/lib", "/providers", "/generated", "/auth", "/api"];
   const showAdsense = !blockAdsenseRoutes.includes(pathname);
 
   useEffect(() => {
