@@ -6,16 +6,15 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const param = params;
+  // مرر الـ object بالظبط زي ما schema مستني
+  const idCheck = schema.safeParse({ id: params.id });
 
-  const id = schema.safeParse(param);
-
-  if (!id.success) {
-    return NextResponse.json({ error: id.error.message }, { status: 401 });
+  if (!idCheck.success) {
+    return NextResponse.json({ error: idCheck.error.message }, { status: 400 });
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: id.data.id },
+    where: { id: idCheck.data.id },
   });
 
   if (!user) {
