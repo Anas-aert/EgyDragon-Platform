@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next";
 import VignetteLoader from "./_components/ads";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import PresenceManager from "./_components/precense";
+import AdsenseScript from "./_components/Adsenseads";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,12 +74,6 @@ export default async function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4683128936517413"
-          crossOrigin="anonymous"
-        ></script>
-
         <meta
           name="description"
           content="A Social Platform help you express your ideas and feeling freerly"
@@ -136,6 +131,7 @@ export default async function RootLayout({
           <main className="flex-grow">{children}</main>
           <PresenceManager />
         </NextAuthProvider>
+        <AdsenseScript />
 
         {/* Improved Footer */}
         <footer className="bg-gradient-to-r from-blue-900 to-indigo-900 p-6 text-center text-white">
