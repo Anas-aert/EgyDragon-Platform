@@ -1,12 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 import schema from "./schema";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  // مرر الـ object بالظبط زي ما schema مستني
+export async function GET({ params }: { params: { id: string } }) {
   const idCheck = schema.safeParse({ id: params.id });
 
   if (!idCheck.success) {
