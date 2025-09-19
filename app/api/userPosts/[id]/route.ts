@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 import schema from "./schema";
 
-type RouteContext = {
-  params: { id: string };
-};
-
-export async function GET(req: NextRequest, context: RouteContext) {
-  const { params } = context;
-
-  const idCheck = schema.safeParse({ id: params.id });
+// الطريقة الأنسب لـ Next.js 15
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  
+  const idCheck = schema.safeParse({ id });
 
   if (!idCheck.success) {
     return NextResponse.json({ error: idCheck.error.message }, { status: 400 });
