@@ -4,8 +4,8 @@ import { authOptions } from "@/app/lib/nextAuth";
 import { cookies } from "next/headers";
 import { AddNewPost } from "@/app/_components/AddPost";
 import PostCard from "@/app/_components/PostCard";
-import { URL } from "url";
-import { NextRequest } from "next/server";
+
+
 
 // تحديد أنواع البيانات المستخدمة
 type Like = {
@@ -40,7 +40,6 @@ export type Post = {
 };
 
 // تحديد أنواع الـ props التي يستقبلها المكون
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ProfileProps = {
   params: {
     id: string;
@@ -48,9 +47,8 @@ type ProfileProps = {
 };
 
 // 🟢 المكون أصبح الآن Async Component لجلب البيانات من الخادم
-const Profile = async (req:NextRequest) => {
-  const idf = new URL(req.url)
-  const id = idf.toString().split("/")[4]
+const Profile = async ({ params }: ProfileProps) => {
+  const id = params.id
   const session = await getServerSession(authOptions);
   const isOwner = session?.user?.id === id;
   const userId = id;
