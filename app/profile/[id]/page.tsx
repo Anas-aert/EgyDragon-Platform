@@ -4,6 +4,8 @@ import { authOptions } from "@/app/lib/nextAuth";
 import { cookies } from "next/headers";
 import { AddNewPost } from "@/app/_components/AddPost";
 import PostCard from "@/app/_components/PostCard";
+import { URL } from "url";
+import { NextRequest } from "next/server";
 
 // تحديد أنواع البيانات المستخدمة
 type Like = {
@@ -37,18 +39,13 @@ export type Post = {
   comments: Comment[];
 };
 
-// تحديد أنواع الـ props التي يستقبلها المكون
-type ProfileProps = {
-  params: {
-    id: string;
-  };
-};
-
 // 🟢 المكون أصبح الآن Async Component لجلب البيانات من الخادم
-const Profile = async ({ params }: ProfileProps) => {
+const Profile = async (req:NextRequest) => {
+  const idf = new URL(req.url)
+  const id = idf.toString().split("/")[4]
   const session = await getServerSession(authOptions);
-  const isOwner = session?.user?.id === params.id;
-  const userId = params.id;
+  const isOwner = session?.user?.id === id;
+  const userId = id;
 
   // 🟢 استخراج الكوكيز مباشرة داخل المكون
   const cookieStore = await cookies();
