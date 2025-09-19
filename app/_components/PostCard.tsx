@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type PostFromAPI = {
   id: string;
@@ -25,13 +26,13 @@ type PostFromAPI = {
   likes: Array<{
     id: string;
     userId: string;
-    user: { name: string; image?: string };
+    user: { name?: string; image?: string }; // ✅ خلي name اختياري
   }>;
   comments: Array<{
     id: string;
     content: string;
     userId: string;
-    user: { name: string; image?: string };
+    user: { name?: string; image?: string }; // ✅ نفس الشيء هنا
     createdAt: string;
   }>;
 };
@@ -52,13 +53,16 @@ export default function PostCard({
   const [isHovered, setIsHovered] = useState(false);
 
   // 📌 fetch helper
-  const fetchWithAbort = useCallback(async (url: string, options?: RequestInit) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const res = await fetch(url, { ...options, signal });
-    if (!res.ok) throw new Error(`Failed to fetch ${url}`);
-    return res.json();
-  }, []);
+  const fetchWithAbort = useCallback(
+    async (url: string, options?: RequestInit) => {
+      const controller = new AbortController();
+      const signal = controller.signal;
+      const res = await fetch(url, { ...options, signal });
+      if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+      return res.json();
+    },
+    []
+  );
 
   // 📌 followers + follow state
   useEffect(() => {
@@ -66,7 +70,9 @@ export default function PostCard({
     const load = async () => {
       try {
         const [followers, followState] = await Promise.all([
-          fetchWithAbort(`/api/followers?id=${post.authorId}`, { cache: "no-store" }),
+          fetchWithAbort(`/api/followers?id=${post.authorId}`, {
+            cache: "no-store",
+          }),
           loggedInUserId
             ? fetchWithAbort(
                 `/api/followers/check?userId=${loggedInUserId}&postUserId=${post.authorId}`,
@@ -94,7 +100,10 @@ export default function PostCard({
       const res = await fetch(`/api/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: loggedInUserId, postUserId: post.authorId }),
+        body: JSON.stringify({
+          userId: loggedInUserId,
+          postUserId: post.authorId,
+        }),
         cache: "no-store",
       });
       if (res.ok) {
@@ -112,7 +121,10 @@ export default function PostCard({
       const res = await fetch(`/api/followers`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: loggedInUserId, postUserId: post.authorId }),
+        body: JSON.stringify({
+          userId: loggedInUserId,
+          postUserId: post.authorId,
+        }),
         cache: "no-store",
       });
       if (res.ok) {
@@ -136,14 +148,19 @@ export default function PostCard({
   }, [post.createdAt]);
 
   // 📌 presence logic
-  const [state, setState] = useState<{ isOnline: boolean; lastSeen: string } | null>(null);
+  const [state, setState] = useState<{
+    isOnline: boolean;
+    lastSeen: string;
+  } | null>(null);
   useEffect(() => {
     let isMounted = true;
 
     const fetchState = async () => {
       if (document.hidden) return;
       try {
-        const res = await fetch(`/api/getStates?userId=${author.id}`, { cache: "no-store" });
+        const res = await fetch(`/api/getStates?userId=${author.id}`, {
+          cache: "no-store",
+        });
         if (!res.ok) throw new Error("Failed to fetch state");
         const data = await res.json();
         if (isMounted) setState(data);
@@ -158,7 +175,10 @@ export default function PostCard({
     const channel = new BroadcastChannel("presence");
     channel.onmessage = (event) => {
       if (event.data.userId === author.id) {
-        setState({ isOnline: event.data.isOnline, lastSeen: event.data.lastSeen });
+        setState({
+          isOnline: event.data.isOnline,
+          lastSeen: event.data.lastSeen,
+        });
       }
     };
 
@@ -181,13 +201,16 @@ export default function PostCard({
         {/* author */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
-            <Image
-              src={author?.image || "/default-avatar.png"}
-              alt={author?.name || "User"}
-              width={48}
-              height={48}
-              className="rounded-full border-2 border-purple-200 group-hover:border-purple-400 transition-colors"
-            />
+            <Link href={`/profile/${author.id}`}>
+              <Image
+                src={author?.image || "/default-avatar.png"}
+                alt={author?.name || "User"}
+                width={48}
+                height={48}
+                className="rounded-full border-2 border-purple-200 group-hover:border-purple-400 transition-colors"
+              />
+            </Link>
+
             {state?.isOnline && (
               <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></span>
             )}
@@ -196,12 +219,28 @@ export default function PostCard({
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{author?.name || "user"}</h3>
+            <Link
+              href={`/profile/${author.id}`}
+              className="font-semibold text-gray-900 hover:underline"
+            >
+              {author?.name || "User"}
+            </Link>
+
             <p className="text-sm text-gray-500 flex items-center gap-1">
               <Calendar size={14} /> {formattedDate}
             </p>
             {state && !state.isOnline && (
-              <p className="text-xs text-gray-400">Last seen: {state.lastSeen}</p>
+              <p className="text-xs text-gray-400">
+                Last seen:{" "}
+                {new Date(state.lastSeen).toLocaleString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </p>
             )}
           </div>
           {loggedInUserId !== author.id && (
@@ -209,7 +248,11 @@ export default function PostCard({
               {isFollowing ? (
                 <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="bg-purple-50 text-purple-600 hover:bg-purple-100">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-purple-50 text-purple-600 hover:bg-purple-100"
+                    >
                       Following
                     </Button>
                   </DialogTrigger>
@@ -217,7 +260,8 @@ export default function PostCard({
                     <DialogHeader>
                       <DialogTitle>Unfollow {author?.name}?</DialogTitle>
                       <DialogDescription>
-                        Do you want to unfollow {author?.name}? You can always follow again later.
+                        Do you want to unfollow {author?.name}? You can always
+                        follow again later.
                       </DialogDescription>
                     </DialogHeader>
                     <Button variant="destructive" onClick={minusFollower}>
@@ -226,7 +270,11 @@ export default function PostCard({
                   </DialogContent>
                 </Dialog>
               ) : (
-                <Button onClick={plusFollower} size="sm" className="bg-purple-500 text-white hover:bg-purple-600">
+                <Button
+                  onClick={plusFollower}
+                  size="sm"
+                  className="bg-purple-500 text-white hover:bg-purple-600"
+                >
                   Follow
                 </Button>
               )}
@@ -245,7 +293,11 @@ export default function PostCard({
               <Users size={16} /> {followersCount}
             </span>
           </div>
-          <PostActions postId={post.id} initialLikes={post.likes} initialComments={post.comments} />
+          <PostActions
+            postId={post.id}
+            initialLikes={post.likes}
+            initialComments={post.comments}
+          />
         </div>
       </div>
     </article>
