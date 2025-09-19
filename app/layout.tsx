@@ -130,17 +130,6 @@ export default async function RootLayout({
       <body
         className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <a
-          href="https://otieu.com/4/9886165"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block z-50 my-6 mx-auto text-center p-4 w-fit px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 
-             text-white font-semibold shadow-md hover:from-blue-700 hover:to-indigo-700 
-             transition-all duration-300 transform hover:scale-105"
-        >
-          Click Here
-        </a>
-
         <VignetteLoader />
         <NextAuthProvider>
           <NavBar />
