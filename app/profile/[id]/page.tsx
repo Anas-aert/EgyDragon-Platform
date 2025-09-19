@@ -1,9 +1,13 @@
+import { getServerSession } from "next-auth";
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import { authOptions } from "@/app/lib/nextAuth";
+import { cookies } from "next/headers";
+import { AddNewPost } from "@/app/_components/AddPost";
+import PostCard from "@/app/_components/PostCard";
+import { URL } from "url";
+import { NextRequest } from "next/server";
 
 // تحديد أنواع البيانات المستخدمة
-// Note: In a real-world application, these types would be in a separate file,
-// but for this single-file example, they are defined here.
 type Like = {
   id: string;
   userId: string;
@@ -24,8 +28,7 @@ type Author = {
   image?: string;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type Post = {
+export type Post = {
   id: string;
   title: string;
   content: string;
@@ -36,117 +39,39 @@ type Post = {
   comments: Comment[];
 };
 
-// Mock data to simulate the API response and user session
-const mockPosts = [
-  {
-    id: "post1",
-    title: "My First Post",
-    content: "This is a post about something interesting!",
-    createdAt: "2023-10-27T10:00:00Z",
-    authorId: "user123",
-    author: {
-      id: "user123",
-      name: "Ahmed",
-      image: "https://placehold.co/128x128/FF6347/FFFFFF?text=A",
-    },
-    likes: [],
-    comments: [],
-  },
-  {
-    id: "post2",
-    title: "Another Post",
-    content: "Sharing some thoughts on this topic.",
-    createdAt: "2023-10-26T14:30:00Z",
-    authorId: "user456",
-    author: {
-      id: "user456",
-      name: "Fatima",
-      image: "https://placehold.co/128x128/32CD32/FFFFFF?text=F",
-    },
-    likes: [],
-    comments: [],
-  },
-];
-
-const mockSession = {
-  user: {
-    id: "user123",
-    name: "Ahmed",
-    email: "ahmed@example.com",
-    image: "https://placehold.co/128x128/FF6347/FFFFFF?text=A",
-  },
+// تحديد أنواع الـ props التي يستقبلها المكون
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type ProfileProps = {
+  params: {
+    id: string;
+  };
 };
 
-// A simplified version of AddNewPost component
-const AddNewPost = () => {
-  return (
-    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform duration-200 transform hover:scale-105">
-      Add a New Post
-    </button>
+// 🟢 المكون أصبح الآن Async Component لجلب البيانات من الخادم
+const Profile = async (req:NextRequest) => {
+  const idf = new URL(req.url)
+  const id = idf.toString().split("/")[4]
+  const session = await getServerSession(authOptions);
+  const isOwner = session?.user?.id === id;
+  const userId = id;
+
+  // 🟢 استخراج الكوكيز مباشرة داخل المكون
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+
+  // 🟢 جلب البوستات مباشرة داخل المكون
+  const res = await fetch(
+    `https://egydragon-anas.vercel.app/api/userPosts/${userId}`,
+    {
+      cache: "no-store",
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    }
   );
-};
 
-// A simplified version of PostCard component
-const PostCard = ({ post, author }) => {
-  return (
-    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-      <div className="flex items-center mb-4">
-        <Image
-          src={
-            author?.image ||
-            "https://placehold.co/128x128/808080/FFFFFF?text=User"
-          }
-          alt="Author Image"
-          className="w-12 h-12 rounded-full mr-4 border-2 border-gray-200"
-          width={500}
-          height={500}
-        />
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800">
-            {author?.name || "Anonymous"}
-          </h3>
-          <p className="text-sm text-gray-500">
-            {new Date(post.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
-      <h4 className="text-2xl font-bold text-gray-900 mb-2">{post.title}</h4>
-      <p className="text-gray-700">{post.content}</p>
-    </div>
-  );
-};
-
-const App = () => {
-  // We'll use a mock user ID for demonstration purposes.
-  // This would normally be derived from the URL as in your original code.
-  const userId = "user123";
-
-  // State to manage the user session and posts
-  const [session, setSession] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Simulate fetching data on component mount
-  useEffect(() => {
-    // We're simulating a network request and setting the session and posts.
-    // In a real app, this would be your fetch call.
-    setTimeout(() => {
-      setSession(mockSession);
-      setPosts(mockPosts.filter((post) => post.authorId === userId));
-      setIsLoading(false);
-    }, 1000);
-  }, [userId]);
-
-  // Check if the current user is the owner of this profile
-  const isOwner = session?.user?.id === userId;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <p className="text-xl text-gray-600">Loading profile...</p>
-      </div>
-    );
-  }
+  const posts: Post[] = res.ok ? await res.json() : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
@@ -223,4 +148,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Profile;
