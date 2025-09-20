@@ -8,6 +8,7 @@ import VignetteLoader from "./_components/ads";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import PresenceManager from "./_components/precense";
 import AdsenseScript from "./_components/Adsenseads";
+import LoadingIndicator from "./_components/LoadingIndicator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -126,6 +127,7 @@ export default async function RootLayout({
         className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextAuthProvider>
+          <LoadingIndicator />
           <NavBar />
           <main className="flex-grow">{children}</main>
           <PresenceManager />
