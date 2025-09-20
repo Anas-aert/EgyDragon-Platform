@@ -6,9 +6,23 @@ import { useEffect } from "react";
 export default function AdsenseScript() {
   const pathname = usePathname();
 
-  // الصفحات اللي عايز تمنع فيها AdSense
-  const blockAdsenseRoutes = ["/settings", "/login", "/lib", "/providers", "/generated", "/auth", "/api"];
-  const showAdsense = !blockAdsenseRoutes.includes(pathname);
+  // الصفحات أو الملفات اللي عايز تمنع فيها AdSense
+  const blockAdsenseRoutes = [
+    "/settings",
+    "/providers",
+    "/lib",
+    "/generated",
+    "/auth",
+    "/_components/Navbar",
+    "/_components/PostActions",
+    "/_components/precense",
+    "/_components/usePresence",
+  ];
+
+  // التحقق لو الصفحة الحالية تبدأ بأي Route محظور
+  const showAdsense = !blockAdsenseRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
   useEffect(() => {
     if (!showAdsense) return;
@@ -21,7 +35,9 @@ export default function AdsenseScript() {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script); // تنظيف عند تغيير الصفحة
+      if (script && document.head.contains(script)) {
+        document.head.removeChild(script); // تنظيف عند تغيير الصفحة
+      }
     };
   }, [showAdsense]);
 
