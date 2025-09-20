@@ -4,24 +4,28 @@ import { Sparkles } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Particles from "./Particles";
 import Image from "next/image";
-import { SaveUsersss } from "@/app/saveusersintodb";
 
 export default function LoginPage() {
-  const handleSocialLogin = (provider: string) => {
-    signIn(provider, { redirect: true, callbackUrl: "/" });
-    SaveUsersss();
+  const handleSocialLogin = async (provider: string) => {
+    // تسجيل الدخول
+    await signIn(provider, { redirect: true, callbackUrl: "/" });
+
+    // استدعاء API لحفظ المستخدم في DB
+    await fetch("/api/auth/saveusers", {
+      method: "POST",
+    });
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      {/* Animated background elements */}
+      {/* Animated background */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
         <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
       </div>
 
-      {/* Floating particles */}
+      {/* Particles */}
       <div className="absolute inset-0 overflow-hidden">
         <Particles />
       </div>
@@ -29,7 +33,7 @@ export default function LoginPage() {
       {/* Main content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-sm">
-          {/* Logo/Brand section */}
+          {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mb-6 shadow-2xl">
               <Sparkles className="w-10 h-10 text-white" />
@@ -42,11 +46,11 @@ export default function LoginPage() {
 
           {/* Login card */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8 transition-all duration-300 hover:bg-white/15">
-            {/* Social login buttons */}
             <div className="space-y-4">
+              {/* Google button */}
               <button
                 onClick={() => handleSocialLogin("google")}
-                className="w-full cursor-pointer flex items-center justify-center space-x-4 bg-white hover:bg-gray-50 text-gray-900 py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group"
+                className="w-full flex items-center justify-center space-x-4 bg-white hover:bg-gray-50 text-gray-900 py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group"
               >
                 <svg
                   className="w-6 h-6 group-hover:scale-110 transition-transform duration-200"
@@ -72,14 +76,15 @@ export default function LoginPage() {
                 <span className="text-lg">Continue with Google</span>
               </button>
 
+              {/* GitHub button */}
               <button
                 onClick={() => handleSocialLogin("github")}
-                className="w-full cursor-pointer flex items-center justify-center space-x-4 bg-gray-900 hover:bg-gray-800 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group"
+                className="w-full flex items-center justify-center space-x-4 bg-gray-900 hover:bg-gray-800 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group"
               >
                 <Image
                   className="w-6 h-6 group-hover:scale-110 transition-transform duration-200"
-                  width={50}
-                  height={50}
+                  width={24}
+                  height={24}
                   src={"/github-mark.svg"}
                   alt="Github"
                 />
