@@ -135,6 +135,7 @@ export default async function RootLayout({
         </NextAuthProvider>
         <AdsenseScript />
 
+
         {/* Improved Footer */}
         <footer className="bg-gradient-to-r from-blue-900 to-indigo-900 p-6 text-center text-white">
           <div className="max-w-6xl mx-auto">
