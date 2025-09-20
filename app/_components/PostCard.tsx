@@ -220,7 +220,7 @@ export default function PostCard({
           </div>
           <div>
             <Link
-              href={`/profile/${author.id}`}
+              href={`/profile/${author.id}?id=${author.id}`}
               className="font-semibold text-gray-900 hover:underline"
             >
               {author?.name || "User"}
