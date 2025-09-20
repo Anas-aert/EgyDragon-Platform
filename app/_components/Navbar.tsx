@@ -29,6 +29,8 @@ function NavBarComponent() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  const author = useSession()
+
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const userButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -134,7 +136,7 @@ function NavBarComponent() {
                   className="absolute right-0 translate-y-1 w-48 bg-white rounded-md shadow-lg py-2 border border-gray-200"
                 >
                   <Link
-                    href="/profile"
+                    href={`/profile/${author.data.user.id}?id=${author.data.user.id}`}
                     className="flex items-center space-x-2 px-4 py-2 text-black hover:bg-gray-100"
                     onClick={() => setOpen(false)}
                   >

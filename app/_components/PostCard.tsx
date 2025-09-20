@@ -201,7 +201,7 @@ export default function PostCard({
         {/* author */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
-            <Link href={`/profile/${author.id}`}>
+            <Link href={`/profile/${author.id}?id=${author.id}`}>
               <Image
                 src={author?.image || "/default-avatar.png"}
                 alt={author?.name || "User"}
