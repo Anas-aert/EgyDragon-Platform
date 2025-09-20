@@ -28,10 +28,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const validation = followSchema.safeParse(body);
-
-  console.log(validation)
-  console.log(validation.success)
-  console.log(body)
   
   if (!validation.success) {
     return NextResponse.json(
@@ -69,10 +65,6 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const body = await request.json();
   const validation = followSchema.safeParse(body);
-  
-  console.log(validation)
-  console.log(validation.success)
-  console.log(body)
   
   if (!validation.success) {
     return NextResponse.json(
