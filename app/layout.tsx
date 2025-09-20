@@ -125,11 +125,11 @@ export default async function RootLayout({
       <body
         className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <VignetteLoader />
         <NextAuthProvider>
           <NavBar />
           <main className="flex-grow">{children}</main>
           <PresenceManager />
+          <VignetteLoader />
         </NextAuthProvider>
         <AdsenseScript />
 

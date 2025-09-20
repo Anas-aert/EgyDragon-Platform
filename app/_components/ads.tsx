@@ -3,7 +3,6 @@ import { useEffect } from "react";
 
 export default function VignetteLoader() {
   useEffect(() => {
-    if (document.getElementById("monetag-script")) return; // 🟢 منع التحميل مرتين
     const script = document.createElement("script");
     script.id = "monetag-script";
     script.src = "//magnificentmanlyyeast.com/0d/8c/2e/0d8c2e5a015a7a0d381cfdfea680d473.js";
