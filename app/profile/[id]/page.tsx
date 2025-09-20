@@ -3,19 +3,16 @@ import { authOptions } from "@/app/lib/nextAuth";
 import { cookies } from "next/headers";
 import PostCard from "@/app/_components/PostCard";
 import { AddNewPost } from "@/app/_components/AddPost";
+import Image from "next/image";
 
 type Like = { id: string; userId: string; user: { name?: string; image?: string } };
 type Comment = { id: string; content: string; userId: string; user: { name?: string; image?: string }; createdAt: string };
 type Author = { id: string; name?: string; image?: string };
 export type Post = { id: string; title: string; content: string; createdAt: string; authorId: string; author: Author; likes: Like[]; comments: Comment[] };
 
-// ⚡️ استخدم PageProps مباشرة
-type ProfilePageProps = {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
 
-const Profile = async ({ params }: ProfilePageProps) => {
+
+const Profile = async ({ params }: { params: { id: string } }) => {
   const userId = params.id;
 
   const session = await getServerSession(authOptions);
@@ -41,7 +38,7 @@ const Profile = async ({ params }: ProfilePageProps) => {
         {session ? (
           <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center border border-gray-100 mx-auto">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">{isOwner ? "Your Profile" : "Profile"}</h1>
-            {session.user?.image && <img src={session.user.image} alt="User" className="w-32 h-32 rounded-full mx-auto mb-4" />}
+            {session.user?.image && <Image src={session.user.image} alt="User" className="w-32 h-32 rounded-full mx-auto mb-4" />}
             <p className="text-lg text-gray-700"><b>Name:</b> {session.user?.name}</p>
             <p className="text-lg text-gray-700"><b>Email:</b> {session.user?.email}</p>
           </div>
