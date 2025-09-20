@@ -58,9 +58,10 @@ const Profile = async ({
     }
   );
 
-  const res2 = await fetch(`/api/fetchUserData?id=${userId}`);
-  const userData:userdata = await res2.json() ;
-  
+  const res2 = await fetch(
+    `https://egydragon-anas.vercel.app/api/fetchUserData?id=${userId}`
+  );
+  const userData: userdata = await res2.json();
 
   const posts: Post[] = res.ok ? await res.json() : [];
 

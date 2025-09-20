@@ -18,9 +18,8 @@ export async function GET(req: NextRequest) {
 
   const userData = await prisma.user.findUnique({
     where: { id: validation.data.id },
-    select:{ image:true, name:true, email:true }
+    select: { image: true, name: true, email: true },
   });
 
-  return NextResponse.json(userData, {status:200})
-
+  return NextResponse.json(userData, { status: 200 });
 }
