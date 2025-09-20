@@ -1,3 +1,5 @@
+"use client"
+
 // components/LoadingIndicator.js
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
