@@ -110,6 +110,7 @@ const nextConfig: NextConfig = {
                 https://*.daimophoogree.net;
 
 
+
               frame-src 'self'
                 https://web.telegram.org
                 https://t.me
