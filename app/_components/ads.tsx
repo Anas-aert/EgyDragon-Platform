@@ -1,18 +1,18 @@
 "use client";
-import { useEffect } from "react";
+
+import Script from "next/script";
 
 export default function VignetteLoader() {
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.id = "monetag-script";
-    script.src = "https://magnificentmanlyyeast.com/0d/8c/2e/0d8c2e5a015a7a0d381cfdfea680d473.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      script.remove();
-    };
-  }, []);
-
-  return null;
+  return (
+    <Script
+      id="monetag-script"
+      strategy="afterInteractive"
+      dangerouslySetInnerHTML={{
+        __html: `(function(s){
+          s.dataset.zone='9884440';
+          s.src='https://groleegni.net/vignette.min.js';
+        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));`,
+      }}
+    />
+  );
 }

@@ -3,15 +3,18 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      // Google + GitHub + Unsplash
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "*.googlesyndication.com" },
       { protocol: "https", hostname: "*.googleusercontent.com" },
-      // إضافة نطاقات monetag
+
+      // Monetag
       { protocol: "https", hostname: "*.monetag.com" },
       { protocol: "https", hostname: "monetag.com" },
-      // إضافة النطاقات الأخرى
+
+      // Domains used by Monetag scripts
       { protocol: "https", hostname: "groleegni.net" },
       { protocol: "https", hostname: "*.groleegni.net" },
       { protocol: "https", hostname: "vouphoanooque.net" },
@@ -22,14 +25,15 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.fleraprt.com" },
       { protocol: "https", hostname: "otieu.com" },
       { protocol: "https", hostname: "*.otieu.com" },
-      // النطاق الجديد
       { protocol: "https", hostname: "magnificentmanlyyeast.com" },
       { protocol: "https", hostname: "*.magnificentmanlyyeast.com" },
     ],
   },
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+
   async headers() {
     return [
       {
