@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import PostCard from "@/app/_components/PostCard";
 import { AddNewPost } from "@/app/_components/AddPost";
 import Image from "next/image";
+import AdsenseScript from "@/app/_components/Adsenseads";
 
 type Like = {
   id: string;
@@ -68,6 +69,7 @@ const Profile = async ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="container mx-auto px-4 max-w-6xl flex flex-col gap-8">
+        <AdsenseScript/>
         {session ? (
           <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center border border-gray-100 mx-auto">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">

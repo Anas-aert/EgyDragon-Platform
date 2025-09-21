@@ -1,9 +1,9 @@
 // app/page.tsx
 export const dynamic = "force-dynamic";
 
-
 import { prisma } from "@/prisma/client";
 import PostCard from "./_components/PostCard";
+import AdsenseScript from "./_components/Adsenseads";
 
 type PostFromAPI = {
   id: string;
@@ -65,6 +65,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
       {/* Animated Background Elements */}
+      <AdsenseScript />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-300/20 to-indigo-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -78,7 +79,8 @@ export default async function Home() {
             Social Feed
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-300">
-            Discover amazing Tips, connect with people, and share your Programming problem with the world and your Ideas
+            Discover amazing Tips, connect with people, and share your
+            Programming problem with the world and your Ideas
           </p>
           <div className="mt-8 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent animate-fade-in delay-500"></div>
         </div>
@@ -91,22 +93,38 @@ export default async function Home() {
             <div className="text-center py-20 animate-fade-in delay-700">
               <div className="mb-8 animate-float">
                 <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mb-6 shadow-lg animate-glow">
-                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <svg
+                    className="w-12 h-12 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                   </svg>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">No posts yet!</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                No posts yet!
+              </h3>
               <p className="text-gray-500 text-lg max-w-md mx-auto leading-relaxed">
-                Be the first to share something amazing with the community. Your story could inspire others!
+                Be the first to share something amazing with the community. Your
+                story could inspire others!
               </p>
             </div>
           ) : (
             <div className="space-y-8">
               {postsWithUsers.map(({ post, user }, index) => (
-                <div 
-                  key={post.id} 
-                  className={`animate-fade-in-up delay-${Math.min(index * 100 + 200, 900)} hover-lift`}
+                <div
+                  key={post.id}
+                  className={`animate-fade-in-up delay-${Math.min(
+                    index * 100 + 200,
+                    900
+                  )} hover-lift`}
                 >
                   <PostCard post={post} author={user} />
                 </div>

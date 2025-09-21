@@ -7,7 +7,6 @@ import { Analytics } from "@vercel/analytics/next";
 import VignetteLoader from "./_components/ads";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import PresenceManager from "./_components/precense";
-import AdsenseScript from "./_components/Adsenseads";
 import LoadingIndicator from "./_components/LoadingIndicator";
 
 const geistSans = Geist({
@@ -133,8 +132,6 @@ export default async function RootLayout({
           <PresenceManager />
           <VignetteLoader />
         </NextAuthProvider>
-        <AdsenseScript />
-
 
         {/* Improved Footer */}
         <footer className="bg-gradient-to-r from-blue-900 to-indigo-900 p-6 text-center text-white">
