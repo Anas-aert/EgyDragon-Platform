@@ -123,6 +123,10 @@ const nextConfig: NextConfig = {
 
               frame-ancestors 'self'
                 https://web.telegram.org;
+                https://t.me;
+              
+              
+
 
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com;
               font-src 'self' https://fonts.gstatic.com;
