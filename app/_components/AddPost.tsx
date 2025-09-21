@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { PostDialog } from "./dialog";
 import { useState } from "react";
 import useSWR, { mutate } from "swr";
-import { useRouter } from "next/navigation";
 
 // fetcher function لـ SWR
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -13,8 +12,7 @@ export const AddNewPost = () => {
   const { data: session, status } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const router = useRouter();
+
 
   // 🟢 جلب البيانات عشان نقدر نعمل update لها محليًا
   const { data: posts } = useSWR("/api/posts", fetcher);

@@ -1,29 +1,26 @@
 "use client";
 
-// components/LoadingIndicator.js
 import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 import NProgress from "nprogress";
-import "nprogress/nprogress.css"; // لا تنسى استيراد ملف الـ CSS!
+import "nprogress/nprogress.css";
 
 const LoadingIndicator = () => {
-  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleStart = () => NProgress.start();
-    const handleComplete = () => NProgress.done();
-    const handleError = () => NProgress.done();
+    if (!pathname) return;
 
-    router.events.on("routeChangeStart", handleStart);
-    router.events.on("routeChangeComplete", handleComplete);
-    router.events.on("routeChangeError", handleError);
+    NProgress.start();
+    // وقف بعد فترة بسيطة عشان يبان الـ progress
+    const timer = setTimeout(() => {
+      NProgress.done();
+    }, 300);
 
     return () => {
-      router.events.off("routeChangeStart", handleStart);
-      router.events.off("routeChangeComplete", handleComplete);
-      router.events.off("routeChangeError", handleError);
+      clearTimeout(timer);
     };
-  }, [router]);
+  }, [pathname]);
 
   return null;
 };
