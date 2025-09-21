@@ -105,7 +105,10 @@ const nextConfig: NextConfig = {
                 https://otieu.com
                 https://*.otieu.com
                 https://magnificentmanlyyeast.com
-                https://*.magnificentmanlyyeast.com;
+                https://*.magnificentmanlyyeast.com
+                https://daimophoogree.net
+                https://*.daimophoogree.net;
+
 
               frame-src 'self'
                 https://web.telegram.org
