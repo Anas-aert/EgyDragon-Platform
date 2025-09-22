@@ -112,8 +112,6 @@ const nextConfig: NextConfig = {
 
 
               frame-src 'self'
-                https://web.telegram.org
-                https://t.me
                 https://googleads.g.doubleclick.net
                 https://www.google.com
                 https://ep2.adtrafficquality.google
