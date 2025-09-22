@@ -10,7 +10,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import AdsenseScript from "../_components/Adsenseads";
 
 export default function ContactPage() {
   const { data } = useSession();
@@ -83,7 +82,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-emerald-50 flex items-center justify-center p-4">
-      <AdsenseScript />
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-pink-400 via-purple-400 to-blue-500 rounded-full opacity-15 blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-500 rounded-full opacity-15 blur-3xl animate-pulse delay-1000"></div>
