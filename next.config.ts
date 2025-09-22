@@ -9,24 +9,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "*.googlesyndication.com" },
       { protocol: "https", hostname: "*.googleusercontent.com" },
-
-      // Monetag
-      { protocol: "https", hostname: "*.monetag.com" },
-      { protocol: "https", hostname: "monetag.com" },
-
-      // Domains used by Monetag scripts
-      { protocol: "https", hostname: "groleegni.net" },
-      { protocol: "https", hostname: "*.groleegni.net" },
-      { protocol: "https", hostname: "vouphoanooque.net" },
-      { protocol: "https", hostname: "*.vouphoanooque.net" },
-      { protocol: "https", hostname: "tzegilo.com" },
-      { protocol: "https", hostname: "*.tzegilo.com" },
-      { protocol: "https", hostname: "fleraprt.com" },
-      { protocol: "https", hostname: "*.fleraprt.com" },
-      { protocol: "https", hostname: "otieu.com" },
-      { protocol: "https", hostname: "*.otieu.com" },
-      { protocol: "https", hostname: "magnificentmanlyyeast.com" },
-      { protocol: "https", hostname: "*.magnificentmanlyyeast.com" },
     ],
   },
 
@@ -43,46 +25,20 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
               default-src 'self';
-              
+
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
                 https://tpc.googlesyndication.com
-                https://ep2.adtrafficquality.google
-                https://*.monetag.com
-                https://groleegni.net
-                https://*.groleegni.net
-                https://vouphoanooque.net
-                https://*.vouphoanooque.net
-                https://tzegilo.com
-                https://*.tzegilo.com
-                https://fleraprt.com
-                https://*.fleraprt.com
-                https://otieu.com
-                https://*.otieu.com
-                https://magnificentmanlyyeast.com
-                https://*.magnificentmanlyyeast.com;
+                https://ep2.adtrafficquality.google;
 
               script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'
                 https://*.vercel-insights.com
                 https://pagead2.googlesyndication.com
                 https://googleads.g.doubleclick.net
                 https://tpc.googlesyndication.com
-                https://ep2.adtrafficquality.google
-                https://*.monetag.com
-                https://groleegni.net
-                https://*.groleegni.net
-                https://vouphoanooque.net
-                https://*.vouphoanooque.net
-                https://tzegilo.com
-                https://*.tzegilo.com
-                https://fleraprt.com
-                https://*.fleraprt.com
-                https://otieu.com
-                https://*.otieu.com
-                https://magnificentmanlyyeast.com
-                https://*.magnificentmanlyyeast.com;
+                https://ep2.adtrafficquality.google;
 
               connect-src 'self'
                 https://*.vercel-insights.com
@@ -92,32 +48,13 @@ const nextConfig: NextConfig = {
                 https://*.googleadservices.com
                 https://*.adservice.google.com
                 https://*.adtrafficquality.google
-                https://ep2.adtrafficquality.google
-                https://*.monetag.com
-                https://groleegni.net
-                https://*.groleegni.net
-                https://vouphoanooque.net
-                https://*.vouphoanooque.net
-                https://tzegilo.com
-                https://*.tzegilo.com
-                https://fleraprt.com
-                https://*.fleraprt.com
-                https://otieu.com
-                https://*.otieu.com
-                https://magnificentmanlyyeast.com
-                https://*.magnificentmanlyyeast.com
-                https://daimophoogree.net
-                https://*.daimophoogree.net;
-
-
+                https://ep2.adtrafficquality.google;
 
               frame-src 'self'
                 https://googleads.g.doubleclick.net
                 https://www.google.com
                 https://ep2.adtrafficquality.google
-                https://pagead2.googlesyndication.com
-                https://otieu.com
-                https://*.otieu.com;
+                https://pagead2.googlesyndication.com;
 
               frame-ancestors 'self'
                 https://web.telegram.org;
