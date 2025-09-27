@@ -45,6 +45,7 @@ async function getUser(userId: string) {
 }
 
 export default async function Home() {
+
   const posts = await fetchPosts();
 
   // If no posts, this will be [] preventing any errors
