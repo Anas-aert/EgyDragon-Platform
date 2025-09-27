@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="loader">
+    <div className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <svg height="0" width="0" viewBox="0 0 64 64" className="absolute">
         <defs xmlns="http://www.w3.org/2000/svg">
           <linearGradient gradientUnits="userSpaceOnUse" y2="2" x2="0" y1="62" x1="0" id="b">
