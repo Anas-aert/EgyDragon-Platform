@@ -1,26 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cairo } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
 import VignetteLoader from "./_components/ads";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import PresenceManager from "./_components/precense";
 import LoadingIndicator from "./_components/LoadingIndicator";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-  preload: true, // تحسين أداء تحميل الخطوط
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const cairo = Cairo({
   subsets: ["latin"],
-  display: "swap",
-  preload: true, // تحسين أداء تحميل الخطوط
+  variable: "--font-cairo",
+  display: "swap", // أسرع للـ CLS
 });
 
 export const metadata: Metadata = {
@@ -72,38 +64,22 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth min-h-screen">
       <head>
         <meta
           name="description"
           content="A Social Platform help you express your ideas and feeling freerly"
         />
-        {/* 
-        <script
-        src="https://fpyf8.com/88/tag.min.js"
-        data-zone="170492"
-        async
-        data-cfasync="false"
-        ></script> */}
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         <link rel="icon" type="image/png" href="./Team.png" />
-        <link
-          rel="icon"
-          type="image/png"
-          href="https://egydragon-anas.vercel.app/Team.png"
-        />
 
         {/* Google Search Console verification */}
         <meta
           name="google-site-verification"
           content="K_ia_fdAuYdnwaITlI-2Khh1EnbHbDojnvzzwHsbCDs"
         />
-        <meta
-          name="google-adsense-account"
-          content="ca-pub-4683128936517413"
-        ></meta>
         {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
@@ -124,7 +100,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`min-h-screen flex flex-col ${cairo.variable} antialiased`}
       >
         <NextAuthProvider>
           <LoadingIndicator />
@@ -190,7 +166,6 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
-        <SpeedInsights />
         <Analytics />
       </body>
     </html>

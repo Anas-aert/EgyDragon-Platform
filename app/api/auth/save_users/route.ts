@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 import userSchema from "../../users/schema";
 
+
 export async function POST() {
   const session = await getServerSession(authOptions);
 
