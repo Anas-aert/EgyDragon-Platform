@@ -4,7 +4,6 @@ import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
-import VignetteLoader from "./_components/ads";
 import PresenceManager from "./_components/precense";
 import LoadingIndicator from "./_components/LoadingIndicator";
 
@@ -107,7 +106,6 @@ export default async function RootLayout({
           <NavBar />
           <main className="flex-grow">{children}</main>
           <PresenceManager />
-          <VignetteLoader />
         </NextAuthProvider>
 
         {/* Improved Footer */}
