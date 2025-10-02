@@ -100,7 +100,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`min-h-screen flex flex-col ${cairo.variable} antialiased`}
+        className={`${cairo.className}  min-h-screen flex flex-col antialiased`}
       >
         <NextAuthProvider>
           <LoadingIndicator />
