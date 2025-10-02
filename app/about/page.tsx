@@ -8,7 +8,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h1 className="text-4xl font-bold mb-4">About Us</h1>
           <p className="text-lg text-gray-200">
-            Welcome to <span className="font-semibold">EgyDrag</span> – We build
+            Welcome to <span className="font-semibold">EgyDragon</span> – We build
             modern solutions to make your digital life easier and smarter.
           </p>
         </div>

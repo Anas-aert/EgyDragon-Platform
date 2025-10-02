@@ -4,9 +4,10 @@ import "./globals.css";
 import NextAuthProvider from "./providers/nextAuthProvider";
 import NavBar from "./_components/Navbar";
 import { Analytics } from "@vercel/analytics/next";
+// import { Analytics } from "@vercel/speedInsights";
 import PresenceManager from "./_components/precense";
 import LoadingIndicator from "./_components/LoadingIndicator";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const cairo = Cairo({
   subsets: ["latin"],
@@ -71,8 +72,8 @@ export default async function RootLayout({
         />
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        
-        <link rel="icon" type="image/png" href="https://egydragon-anas.vercel.app/Team.png" />
+
+        <link rel="icon" type="image/png" href="./Team.png" />
 
         {/* Google Search Console verification */}
         <meta
@@ -112,11 +113,11 @@ export default async function RootLayout({
         <footer className="bg-gradient-to-r from-blue-900 to-indigo-900 p-6 text-center text-white">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold mb-3 select-none">
-              © 2025 Anas. All rights reserved.
+              © 2025 EgyDragon. All rights reserved.
             </h2>
             <p className="text-lg mb-4 select-none opacity-90">
-              This website was created by Anas Muhammed: Python & Full-Stack
-              Programmer
+              This website was created by Anas_Muhammed: Python & Next.js &
+              Full-Stack Programmer
             </p>
 
             {/* Social Media Links */}
@@ -160,11 +161,12 @@ export default async function RootLayout({
             </div>
 
             <p className="text-sm opacity-75">
-              Made with Next.js, Tailwind CSS, and ❤️Anas💖
+              Made with Next.js, Tailwind CSS, React, and ❤️Anas💖
             </p>
           </div>
         </footer>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
