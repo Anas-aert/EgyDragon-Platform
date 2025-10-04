@@ -70,6 +70,7 @@ export default async function RootLayout({
           name="description"
           content="A Social Platform help you express your ideas and feeling freerly"
         />
+        <title>Egy-Dragon</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
